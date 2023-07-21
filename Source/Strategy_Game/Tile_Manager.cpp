@@ -2,6 +2,8 @@
 
 
 #include "Tile_Manager.h"
+#include "Noise2DGenerator.h"
+#include "Math/UnrealMathUtility.h"
 
 // Sets default values
 ATile_Manager::ATile_Manager()
@@ -22,18 +24,24 @@ void ATile_Manager::BeginPlay()
 		HexGrid2DArray[i].SetNumZeroed(MapHeight);
 	}
 
+	// Initialize noise
+	Noise2DGenerator Noise(MapWidth, MapHeight, Friquency, Seed, CosInterpolation);
+
 	for (int32 y = 0; y < MapHeight; y++)
 	{
 		for (int32 x = 0; x < MapWidth; x++)
 		{
-			const float xPos = y % 2 == 1 ? (x * HorizontalOffset) + OddHorizontalOffset : x * HorizontalOffset; // if it`s a pdd row we add extra horizontal offset
+			// Set position of each tile
+			const float xPos = y % 2 == 1 ? (x * HorizontalOffset) + OddHorizontalOffset : x * HorizontalOffset; // if it`s a odd row we add extra horizontal offset
 			const float yPos = y * VerticalOffset;
 
-			// TODO generation by noise
-			//AllTileTypesArray[0]
-
+			// Spawn tile at the position
 			ATile* newTile = GetWorld()->SpawnActor<ATile>(TileType, FVector(xPos, yPos, 0), FRotator::ZeroRotator);
-			newTile->TileIndex = FIntPoint(x, y);
+			newTile->SetTileIndex(FIntPoint(x, y));
+			newTile->setTileNoiseValue(Noise.getValueAtPoint(x, y));
+
+			newTile->SetTileColour(1.0-((Noise.getValueAtPoint(x, y)+1)/2.0));
+
 			HexGrid2DArray[x][y] = newTile;
 		}
 	}

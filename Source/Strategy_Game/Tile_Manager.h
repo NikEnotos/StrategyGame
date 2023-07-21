@@ -21,10 +21,19 @@ protected:
 	TArray<TArray<ATile*>> HexGrid2DArray;
 
 	UPROPERTY(EditAnywhere, Category = "Map Settings")
-		int32 MapWidth;
+		int32 MapWidth = 40;
 
 	UPROPERTY(EditAnywhere, Category = "Map Settings")
-		int32 MapHeight;
+		int32 MapHeight = 40;
+
+	UPROPERTY(EditAnywhere, Category = "Map Settings")
+		int32 Friquency = 10;
+
+	UPROPERTY(EditAnywhere, Category = "Map Settings")
+		int32 Seed = 12345;
+
+	UPROPERTY(EditAnywhere, Category = "Map Settings")
+		bool CosInterpolation = true;
 
 	UPROPERTY(EditAnywhere, Category = "Map Settings")
 		//TArray<TSubclassOf<ATile>> AllTileTypesArray;

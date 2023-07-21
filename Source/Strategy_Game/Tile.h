@@ -8,30 +8,45 @@
 
 class UStaticMeshComponent;
 
+class UMaterialInstanceDynamic;
+
 UCLASS()
 class STRATEGY_GAME_API ATile : public AActor
 {
 	GENERATED_BODY()
 	
 public:
-	UPROPERTY(VisibleInstanceOnly, Category = "Tile")
-	FIntPoint TileIndex;
+
+
+	// Sets default values for this actor's properties
+	ATile();
+
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	FIntPoint GetTileIndex();
+
+	void SetTileIndex(FIntPoint index);
+
+	void SetTileColour(float colour);
+
+	void setTileNoiseValue(float value);
 
 protected:
+
+	UMaterialInstanceDynamic* DynamicMaterial;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Tile")
 		UStaticMeshComponent* TileMesh;
 
-public:	
-	// Sets default values for this actor's properties
-	ATile();
+	UPROPERTY(VisibleInstanceOnly, Category = "Tile")
+		FIntPoint TileIndex;
 
-protected:
+	UPROPERTY(VisibleAnywhere, Category = "Tile")
+		float NoiseValue;
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
 };
