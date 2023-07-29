@@ -25,7 +25,7 @@ void ATile_Manager::BeginPlay()
 	}
 
 	// Initialize noise
-	Noise2DGenerator Noise(MapWidth, MapHeight, Friquency, Seed, CosInterpolation);
+	Noise2DGenerator Noise(MapWidth, MapHeight, Friquency, Seed, seamlessVertically, seamlessHorizontally, CosInterpolation);
 
 	for (int32 y = 0; y < MapHeight; y++)
 	{
@@ -40,7 +40,35 @@ void ATile_Manager::BeginPlay()
 			newTile->SetTileIndex(FIntPoint(x, y));
 			newTile->setTileNoiseValue(Noise.getValueAtPoint(x, y));
 
-			newTile->SetTileColour(1.0-((Noise.getValueAtPoint(x, y)+1)/2.0));
+
+			if (Noise.getValueAtPoint(x, y) <= -0.6) // Water
+			{
+				newTile->SetTileColour(FLinearColor::FromSRGBColor(FColor(100,150,232)));
+			}
+			else if (Noise.getValueAtPoint(x, y) <= -0.32) // Sand
+			{
+				newTile->SetTileColour(FLinearColor::FromSRGBColor(FColor(252,248,0)));
+			}
+			else if (Noise.getValueAtPoint(x, y) <= -0.04) // L1
+			{
+				newTile->SetTileColour(FLinearColor::FromSRGBColor(FColor(22,201,70)));
+			}
+			else if (Noise.getValueAtPoint(x, y) <= 0.24) // L2
+			{
+				newTile->SetTileColour(FLinearColor::FromSRGBColor(FColor(17,166,57)));
+			}
+			else if (Noise.getValueAtPoint(x, y) <= 0.52) // L3
+			{
+				newTile->SetTileColour(FLinearColor::FromSRGBColor(FColor(15,145,50)));
+			}
+			else if (Noise.getValueAtPoint(x, y) <= 0.8) // L4
+			{
+				newTile->SetTileColour(FLinearColor::FromSRGBColor(FColor(9,110,36)));
+			}
+			else if (Noise.getValueAtPoint(x, y) <= 1) // Mountains
+			{
+				newTile->SetTileColour(FLinearColor::FromSRGBColor(FColor(174,191,179)));
+			}
 
 			HexGrid2DArray[x][y] = newTile;
 		}

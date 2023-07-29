@@ -28,7 +28,7 @@ public:
 
 	void SetTileIndex(FIntPoint index);
 
-	void SetTileColour(float colour);
+	void SetTileColour(FLinearColor colour);
 
 	void setTileNoiseValue(float value);
 

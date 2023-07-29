@@ -44,9 +44,9 @@ void ATile::Tick(float DeltaTime)
 	//DynamicMaterial->SetScalarParameterValue(TEXT("Color"), (NoiseValue + 1) / 2);
 }
 
-void ATile::SetTileColour(float colour)
+void ATile::SetTileColour(FLinearColor colour)
 {
-	DynamicMaterial->SetScalarParameterValue(TEXT("Color"), colour);
+	DynamicMaterial->SetVectorParameterValue(TEXT("Color"), colour);
 }
 
 void ATile::setTileNoiseValue(float value)

@@ -33,7 +33,13 @@ protected:
 		int32 Seed = 12345;
 
 	UPROPERTY(EditAnywhere, Category = "Map Settings")
-		bool CosInterpolation = true;
+		bool seamlessVertically = false;
+
+	UPROPERTY(EditAnywhere, Category = "Map Settings")
+		bool seamlessHorizontally = false;
+
+	UPROPERTY(EditAnywhere, Category = "Map Settings")
+		bool CosInterpolation = false;
 
 	UPROPERTY(EditAnywhere, Category = "Map Settings")
 		//TArray<TSubclassOf<ATile>> AllTileTypesArray;
