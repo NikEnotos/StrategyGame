@@ -29,6 +29,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Map Settings")
 		int32 Friquency = 10;
 
+	UPROPERTY(EditAnywhere, Category = "Map Settings | Tile Position")
+		int32 heightOfEachLevel = 35;
+
+	UPROPERTY(EditAnywhere, Category = "Map Settings | Tile Position")
+		int32 numOfLandLevels = 6;
+
 	UPROPERTY(EditAnywhere, Category = "Map Settings")
 		int32 Seed = 12345;
 

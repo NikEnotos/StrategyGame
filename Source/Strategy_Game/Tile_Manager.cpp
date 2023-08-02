@@ -35,8 +35,12 @@ void ATile_Manager::BeginPlay()
 			const float xPos = y % 2 == 1 ? (x * HorizontalOffset) + OddHorizontalOffset : x * HorizontalOffset; // if it`s a odd row we add extra horizontal offset
 			const float yPos = y * VerticalOffset;
 
+			// Calculate level of land
+			int levelOfLand = FMath::GetMappedRangeValueClamped( FVector2D(-1, 1), FVector2D(0, 255), Noise.getValueAtPoint(x, y)) / (256/ numOfLandLevels);
+
+
 			// Spawn tile at the position
-			ATile* newTile = GetWorld()->SpawnActor<ATile>(TileType, FVector(xPos, yPos, 0), FRotator::ZeroRotator);
+			ATile* newTile = GetWorld()->SpawnActor<ATile>(TileType, FVector(xPos, yPos, heightOfEachLevel * levelOfLand), FRotator::ZeroRotator);
 			newTile->SetTileIndex(FIntPoint(x, y));
 			newTile->setTileNoiseValue(Noise.getValueAtPoint(x, y));
 
