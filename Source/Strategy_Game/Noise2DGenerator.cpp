@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
+#include "Noise2DGenerator.h"
 #include <iostream>
 #include <random> 
-#include "Noise2DGenerator.h"
+
 
 Noise2DGenerator::Noise2DGenerator(int widthX, int heightY, int friquency, int seedIn, bool seamlessVertically, bool seamlessHorizontally, bool useCosLerp, float minThreshold, float maxThreshold)
 {

@@ -1,4 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -17,20 +16,10 @@ class STRATEGY_GAME_API ATile : public AActor
 	
 public:
 
-
-	// Sets default values for this actor's properties
 	ATile();
 
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	FIntPoint GetTileIndex();
-
-	void SetTileIndex(FIntPoint index);
-
-	void SetTileColour(FLinearColor colour);
-
-	void setTileNoiseValue(float value);
 
 protected:
 
@@ -39,13 +28,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Tile")
 		UStaticMeshComponent* TileMesh;
 
-	UPROPERTY(VisibleInstanceOnly, Category = "Tile")
-		FIntPoint TileIndex;
-
-	UPROPERTY(VisibleAnywhere, Category = "Tile")
-		float NoiseValue;
-
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 

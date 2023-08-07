@@ -1,4 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Tile.h"
@@ -19,8 +18,6 @@ ATile::ATile()
 	//TileMesh->SetupAttachment(RootComponent);
 	RootComponent = TileMesh;
 
-	//DynamicMaterial->SetScalarParameterValue(TEXT("TileColour"), tileColour);
-
 }
 
 // Called when the game starts or when spawned
@@ -34,32 +31,12 @@ void ATile::BeginPlay()
 
 	DynamicMaterial = UMaterialInstanceDynamic::Create(Material, this);
 	TileMesh->SetMaterial(0, DynamicMaterial);
-	DynamicMaterial->SetScalarParameterValue(TEXT("Color"), (NoiseValue + 1) / 2);
+	DynamicMaterial->SetVectorParameterValue(TEXT("Color"), FColor::White);
 }
 
 // Called every frame
 void ATile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	//DynamicMaterial->SetScalarParameterValue(TEXT("Color"), (NoiseValue + 1) / 2);
-}
 
-void ATile::SetTileColour(FLinearColor colour)
-{
-	DynamicMaterial->SetVectorParameterValue(TEXT("Color"), colour);
-}
-
-void ATile::setTileNoiseValue(float value)
-{
-	NoiseValue = value;
-}
-
-FIntPoint ATile::GetTileIndex()
-{
-	return TileIndex;
-}
-
-void ATile::SetTileIndex(FIntPoint index)
-{
-	TileIndex = index;
 }
