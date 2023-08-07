@@ -34,6 +34,12 @@ private:
 	int Z;
 };
 
+UENUM()
+enum class EHexDirection : uint8 { NE, E, SE, SW, W, NW };
+
+
+
+
 UCLASS()
 class STRATEGY_GAME_API ATile : public AActor
 {
@@ -44,9 +50,11 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
+	ATile* GetNeighbor(EHexDirection direction);
+	void SetNeighbor(EHexDirection direction, ATile* tile);
+
 public:
-	//UPROPERTY(VisibleAnywhere)
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(VisibleAnywhere)
 	FHexCoordinates coordinates;
 
 protected:
@@ -58,5 +66,8 @@ protected:
 protected:
 	virtual void BeginPlay() override;
 
+private:
+	UPROPERTY(VisibleAnywhere)
+	TArray<ATile*> neighbors;
 
 };

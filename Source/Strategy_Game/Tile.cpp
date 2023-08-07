@@ -11,11 +11,24 @@ FHexCoordinates::FHexCoordinates(int x, int y) { X = x; Y = y; Z = -x - y; };
 
 FHexCoordinates::FHexCoordinates() { X = 0; Y = 0; };
 
-FHexCoordinates FHexCoordinates::FromOffsetCoordinates(int x, int y) { return FHexCoordinates(x - int(y / 2), y); };
+FHexCoordinates FHexCoordinates::FromOffsetCoordinates(int x, int y) { return FHexCoordinates(x, y - int(x / 2)); };
+
+static class HexDirectionExtensions 
+{
+public:
+	static EHexDirection Opposite(EHexDirection direction)
+	{
+		return (int)direction < 3 ? static_cast<EHexDirection>((int)direction + 3) : static_cast<EHexDirection>((int)direction - 3);
+	}
+
+};
 
 ATile::ATile()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	// Set number of elements of array
+	neighbors.SetNumZeroed(6);
 
 	//RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComp"));
 	//TileMesh->SetupAttachment(RootComponent);
@@ -39,4 +52,15 @@ void ATile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+ATile* ATile::GetNeighbor(EHexDirection direction)
+{
+	return neighbors[int(direction)];
+}
+
+void ATile::SetNeighbor(EHexDirection direction, ATile* tile)
+{
+	neighbors[int(direction)] = tile;
+	tile->neighbors[int(HexDirectionExtensions::Opposite(direction))] = this;
 }

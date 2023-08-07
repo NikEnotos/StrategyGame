@@ -8,7 +8,24 @@
 
 #include "Tile_Manager.generated.h"
 
-//class ATile;
+USTRUCT()
+struct FTileMetrics 
+{
+	GENERATED_BODY()
+
+	static const float outerRadius;
+
+	static const float innerRadius;
+
+	static const FVector corners[7];
+
+	static const float HexRadius;
+
+	static const float HexBorderSize;
+
+	static const float ConnectionBridgeSize;
+};
+
 
 UCLASS()
 class STRATEGY_GAME_API ATile_Manager : public AActor
@@ -19,10 +36,11 @@ public:
 	ATile_Manager();
 
 protected:
+	// Map SIZE
 	UPROPERTY(EditAnywhere, Category = "Map Settings")
 		int32 MapWidth = 40;
 	UPROPERTY(EditAnywhere, Category = "Map Settings")
-		int32 MapHeibht = 40;
+		int32 MapHeight = 40;
 
 	UPROPERTY(EditAnywhere, Category = "Map Settings")
 		TSubclassOf<ATile> TileMesh;
@@ -38,7 +56,4 @@ protected:
 
 private:
 	TArray<ATile*> TilesArray;
-
-
-
 };
