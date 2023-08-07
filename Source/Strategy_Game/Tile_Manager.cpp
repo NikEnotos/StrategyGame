@@ -8,17 +8,18 @@ struct TileMetrics{
 
 	static const float innerRadius;
 
-	static const FVector corners[6];
+	static const FVector corners[7];
 };
 
-const FVector TileMetrics::corners[6] = {
+const FVector TileMetrics::corners[7] = {
 
 	FVector(0.f, TileMetrics::outerRadius, 0.f),
 	FVector(TileMetrics::innerRadius, 0.5 * TileMetrics::outerRadius, 0.f),
 	FVector(TileMetrics::innerRadius, -0.5 * TileMetrics::outerRadius, 0.f),
 	FVector(0.f, -TileMetrics::outerRadius, 0.f),
 	FVector(-TileMetrics::innerRadius, -0.5 * TileMetrics::outerRadius, 0.f),
-	FVector(-TileMetrics::innerRadius, 0.5 * TileMetrics::outerRadius, 0.f)
+	FVector(-TileMetrics::innerRadius, 0.5 * TileMetrics::outerRadius, 0.f),
+	FVector(0.f, TileMetrics::outerRadius, 0.f)
 
 };
 const float TileMetrics::outerRadius = 150.f;
@@ -61,7 +62,7 @@ void ATile_Manager::createTile(int x, int y, int i)
 
 	// Spawn tile at the position
 	ATile* newTile = GetWorld()->SpawnActor<ATile>(TileMesh, position, FRotator::ZeroRotator);
-
+	newTile->coordinates = FHexCoordinates::FromOffsetCoordinates(x, y);
 	TilesArray[i] = newTile;
 }
 

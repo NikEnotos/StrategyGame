@@ -7,34 +7,34 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Materials/MaterialInterface.h"
 
-// Sets default values
+FHexCoordinates::FHexCoordinates(int x, int y) { X = x; Y = y; Z = -x - y; };
+
+FHexCoordinates::FHexCoordinates() { X = 0; Y = 0; };
+
+FHexCoordinates FHexCoordinates::FromOffsetCoordinates(int x, int y) { return FHexCoordinates(x - int(y / 2), y); };
+
 ATile::ATile()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	//RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComp"));
-	TileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TileMesh"));
 	//TileMesh->SetupAttachment(RootComponent);
+
+	TileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TileMesh"));
 	RootComponent = TileMesh;
 
 }
 
-// Called when the game starts or when spawned
 void ATile::BeginPlay()
 {
 	Super::BeginPlay();
 
-
-	//auto tile = FindComponentByClass<UStaticMeshComponent>();
 	auto Material = TileMesh->GetMaterial(0);
-
 	DynamicMaterial = UMaterialInstanceDynamic::Create(Material, this);
 	TileMesh->SetMaterial(0, DynamicMaterial);
 	DynamicMaterial->SetVectorParameterValue(TEXT("Color"), FColor::White);
 }
 
-// Called every frame
 void ATile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
