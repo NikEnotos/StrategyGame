@@ -37,7 +37,17 @@ private:
 UENUM()
 enum class EHexDirection : uint8 { NE, E, SE, SW, W, NW };
 
+USTRUCT()
+struct FHexDirectionExtensions
+{
+	GENERATED_BODY()
 
+	static EHexDirection Opposite(EHexDirection direction);
+
+	static EHexDirection Previous(EHexDirection direction);
+
+	static EHexDirection Next(EHexDirection direction);
+};
 
 
 UCLASS()

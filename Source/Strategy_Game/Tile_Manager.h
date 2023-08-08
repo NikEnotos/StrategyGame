@@ -24,6 +24,9 @@ struct FTileMetrics
 	static const float HexBorderSize;
 
 	static const float ConnectionBridgeSize;
+
+	static FVector GetFirstCorner(EHexDirection direction);
+	static FVector GetSecondCorner(EHexDirection direction);
 };
 
 

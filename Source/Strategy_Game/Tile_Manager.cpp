@@ -21,6 +21,14 @@ const FVector FTileMetrics::corners[7] = {
 const float FTileMetrics::outerRadius = FTileMetrics::HexRadius + FTileMetrics::HexBorderSize + FTileMetrics::ConnectionBridgeSize;
 const float FTileMetrics::innerRadius = outerRadius * FMath::Sqrt(3) / 2;
 
+FVector FTileMetrics::GetFirstCorner(EHexDirection direction)
+{
+	return corners[(int)direction];
+}
+FVector FTileMetrics::GetSecondCorner(EHexDirection direction)
+{
+	return corners[(int)direction + 1];
+}
 
 
 ATile_Manager::ATile_Manager()
@@ -83,9 +91,7 @@ void ATile_Manager::createTile(int x, int y, int i)
 				newTile->SetNeighbor(EHexDirection::SE, TilesArray[i - MapWidth + 1]);
 			}
 		}
-
 	}
-
 
 	TilesArray[i] = newTile;
 }

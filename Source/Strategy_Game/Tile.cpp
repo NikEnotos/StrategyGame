@@ -13,15 +13,20 @@ FHexCoordinates::FHexCoordinates() { X = 0; Y = 0; };
 
 FHexCoordinates FHexCoordinates::FromOffsetCoordinates(int x, int y) { return FHexCoordinates(x, y - int(x / 2)); };
 
-static class HexDirectionExtensions 
+EHexDirection FHexDirectionExtensions::Opposite(EHexDirection direction)
 {
-public:
-	static EHexDirection Opposite(EHexDirection direction)
-	{
-		return (int)direction < 3 ? static_cast<EHexDirection>((int)direction + 3) : static_cast<EHexDirection>((int)direction - 3);
-	}
+	return (int)direction < 3 ? static_cast<EHexDirection>((int)direction + 3) : static_cast<EHexDirection>((int)direction - 3);
+}
 
-};
+EHexDirection FHexDirectionExtensions::Previous(EHexDirection direction)
+{
+	return direction == EHexDirection::NE ? EHexDirection::NW : static_cast<EHexDirection>((int)direction - 1);
+}
+
+EHexDirection FHexDirectionExtensions::Next(EHexDirection direction)
+{
+	return direction == EHexDirection::NW ? EHexDirection::NE : static_cast<EHexDirection>((int)direction + 1);
+}
 
 ATile::ATile()
 {
@@ -62,5 +67,5 @@ ATile* ATile::GetNeighbor(EHexDirection direction)
 void ATile::SetNeighbor(EHexDirection direction, ATile* tile)
 {
 	neighbors[int(direction)] = tile;
-	tile->neighbors[int(HexDirectionExtensions::Opposite(direction))] = this;
+	tile->neighbors[int(FHexDirectionExtensions::Opposite(direction))] = this;
 }
