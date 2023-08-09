@@ -2,34 +2,6 @@
 #include "Tile_Manager.h"
 #include "Math/UnrealMathUtility.h"
 
-// Set up connection size
-const float FTileMetrics::HexRadius = 100.f;
-const float FTileMetrics::HexBorderSize = 10.f;
-const float FTileMetrics::ConnectionBridgeSize = 30.f;
-
-const FVector FTileMetrics::corners[7] = {
-
-	FVector(0.f, FTileMetrics::outerRadius, 0.f),
-	FVector(FTileMetrics::innerRadius, 0.5 * FTileMetrics::outerRadius, 0.f),
-	FVector(FTileMetrics::innerRadius, -0.5 * FTileMetrics::outerRadius, 0.f),
-	FVector(0.f, -FTileMetrics::outerRadius, 0.f),
-	FVector(-FTileMetrics::innerRadius, -0.5 * FTileMetrics::outerRadius, 0.f),
-	FVector(-FTileMetrics::innerRadius, 0.5 * FTileMetrics::outerRadius, 0.f),
-	FVector(0.f, FTileMetrics::outerRadius, 0.f)
-
-};
-const float FTileMetrics::outerRadius = FTileMetrics::HexRadius + FTileMetrics::HexBorderSize + FTileMetrics::ConnectionBridgeSize;
-const float FTileMetrics::innerRadius = outerRadius * FMath::Sqrt(3) / 2;
-
-FVector FTileMetrics::GetFirstCorner(EHexDirection direction)
-{
-	return corners[(int)direction];
-}
-FVector FTileMetrics::GetSecondCorner(EHexDirection direction)
-{
-	return corners[(int)direction + 1];
-}
-
 
 ATile_Manager::ATile_Manager()
 {
@@ -94,6 +66,16 @@ void ATile_Manager::createTile(int x, int y, int i)
 	}
 
 	TilesArray[i] = newTile;
+
+	// Debug
+	DrawDebugSphere(GetWorld(), newTile->GetActorLocation() + FTileMetrics::GetFirsBorderCorner(EHexDirection::NE), 5.f, 4, FColor::Green, true);
+	DrawDebugSphere(GetWorld(), newTile->GetActorLocation() + FTileMetrics::GetFirsBorderCorner(EHexDirection::E), 5.f, 4, FColor::Green, true);
+	DrawDebugSphere(GetWorld(), newTile->GetActorLocation() + FTileMetrics::GetFirsBorderCorner(EHexDirection::SE), 5.f, 4, FColor::Green, true);
+	DrawDebugSphere(GetWorld(), newTile->GetActorLocation() + FTileMetrics::GetFirsBorderCorner(EHexDirection::SW), 5.f, 4, FColor::Green, true);
+	DrawDebugSphere(GetWorld(), newTile->GetActorLocation() + FTileMetrics::GetFirsBorderCorner(EHexDirection::W), 5.f, 4, FColor::Green, true);
+	DrawDebugSphere(GetWorld(), newTile->GetActorLocation() + FTileMetrics::GetFirsBorderCorner(EHexDirection::NW), 5.f, 4, FColor::Green, true);
 }
+
+
 
 

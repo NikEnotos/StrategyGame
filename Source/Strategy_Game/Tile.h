@@ -49,6 +49,32 @@ struct FHexDirectionExtensions
 	static EHexDirection Next(EHexDirection direction);
 };
 
+USTRUCT()
+struct FTileMetrics
+{
+	GENERATED_BODY()
+
+		static const float outerRadius;
+
+	static const float innerRadius;
+
+	static const FVector corners[7];
+
+	static const float HexRadius;
+
+	static const float HexBorderSize;
+
+	static const float ConnectionBridgeSize;
+
+	static FVector GetFirstCorner(EHexDirection direction);
+	static FVector GetSecondCorner(EHexDirection direction);
+
+	static FVector GetFirsSolidCorner(EHexDirection direction);
+	static FVector GetSecondSolidCorner(EHexDirection direction);
+
+	static FVector GetFirsBorderCorner(EHexDirection direction);
+	static FVector GetSecondBorderCorner(EHexDirection direction);
+};
 
 UCLASS()
 class STRATEGY_GAME_API ATile : public AActor
@@ -62,6 +88,10 @@ public:
 
 	ATile* GetNeighbor(EHexDirection direction);
 	void SetNeighbor(EHexDirection direction, ATile* tile);
+
+
+
+
 
 public:
 	UPROPERTY(VisibleAnywhere)

@@ -8,27 +8,6 @@
 
 #include "Tile_Manager.generated.h"
 
-USTRUCT()
-struct FTileMetrics 
-{
-	GENERATED_BODY()
-
-	static const float outerRadius;
-
-	static const float innerRadius;
-
-	static const FVector corners[7];
-
-	static const float HexRadius;
-
-	static const float HexBorderSize;
-
-	static const float ConnectionBridgeSize;
-
-	static FVector GetFirstCorner(EHexDirection direction);
-	static FVector GetSecondCorner(EHexDirection direction);
-};
-
 
 UCLASS()
 class STRATEGY_GAME_API ATile_Manager : public AActor
@@ -55,6 +34,8 @@ protected:
 protected:
 	UFUNCTION(BlueprintCallable)
 	void createTile(int x, int y, int i);
+
+	
 
 
 private:
