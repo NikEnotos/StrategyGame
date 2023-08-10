@@ -7,6 +7,7 @@
 
 class UStaticMeshComponent;
 class UMaterialInstanceDynamic;
+class UProceduralMeshComponent;
 
 USTRUCT()
 struct FHexCoordinates 
@@ -47,6 +48,8 @@ struct FHexDirectionExtensions
 	static EHexDirection Previous(EHexDirection direction);
 
 	static EHexDirection Next(EHexDirection direction);
+
+	static FString DirectionToString(EHexDirection direction);
 };
 
 USTRUCT()
@@ -81,6 +84,15 @@ class STRATEGY_GAME_API ATile : public AActor
 {
 	GENERATED_BODY()
 	
+
+public:
+	UPROPERTY(VisibleAnywhere)
+		FHexCoordinates coordinates;
+
+	////// Borders
+	UPROPERTY(VisibleAnywhere)
+		TArray<UProceduralMeshComponent*> Borders;
+
 public:
 	ATile();
 
@@ -89,13 +101,9 @@ public:
 	ATile* GetNeighbor(EHexDirection direction);
 	void SetNeighbor(EHexDirection direction, ATile* tile);
 
+	void CreateBorders();
 
 
-
-
-public:
-	UPROPERTY(VisibleAnywhere)
-	FHexCoordinates coordinates;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Tile")
@@ -106,8 +114,14 @@ protected:
 protected:
 	virtual void BeginPlay() override;
 
+
+
 private:
 	UPROPERTY(VisibleAnywhere)
 	TArray<ATile*> neighbors;
+
+private:
+	void DefineBordersProceduralMeshes();
+
 
 };

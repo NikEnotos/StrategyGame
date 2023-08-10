@@ -1,12 +1,12 @@
 
 #include "Tile_Manager.h"
 #include "Math/UnrealMathUtility.h"
+#include "Tile.h"
 
 
 ATile_Manager::ATile_Manager()
 {
 	PrimaryActorTick.bCanEverTick = false;
-
 }
 
 void ATile_Manager::BeginPlay()
@@ -19,14 +19,15 @@ void ATile_Manager::BeginPlay()
 	{
 		for (int y = 0; y < MapWidth; ++y)
 		{
-			createTile(x, y, i++);
+			CreateTile(x, y, i);
+			TilesArray[i]->CreateBorders();
+			++i;
 		}
 	}
 
-
 }
 
-void ATile_Manager::createTile(int x, int y, int i)
+void ATile_Manager::CreateTile(int x, int y, int i)
 {
 	FVector position;
 	position.X = x * (FTileMetrics::outerRadius * 1.5f);
@@ -66,16 +67,4 @@ void ATile_Manager::createTile(int x, int y, int i)
 	}
 
 	TilesArray[i] = newTile;
-
-	// Debug
-	DrawDebugSphere(GetWorld(), newTile->GetActorLocation() + FTileMetrics::GetFirsBorderCorner(EHexDirection::NE), 5.f, 4, FColor::Green, true);
-	DrawDebugSphere(GetWorld(), newTile->GetActorLocation() + FTileMetrics::GetFirsBorderCorner(EHexDirection::E), 5.f, 4, FColor::Green, true);
-	DrawDebugSphere(GetWorld(), newTile->GetActorLocation() + FTileMetrics::GetFirsBorderCorner(EHexDirection::SE), 5.f, 4, FColor::Green, true);
-	DrawDebugSphere(GetWorld(), newTile->GetActorLocation() + FTileMetrics::GetFirsBorderCorner(EHexDirection::SW), 5.f, 4, FColor::Green, true);
-	DrawDebugSphere(GetWorld(), newTile->GetActorLocation() + FTileMetrics::GetFirsBorderCorner(EHexDirection::W), 5.f, 4, FColor::Green, true);
-	DrawDebugSphere(GetWorld(), newTile->GetActorLocation() + FTileMetrics::GetFirsBorderCorner(EHexDirection::NW), 5.f, 4, FColor::Green, true);
 }
-
-
-
-

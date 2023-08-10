@@ -4,10 +4,9 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 
-#include "Tile.h"
-
 #include "Tile_Manager.generated.h"
 
+class ATile;
 
 UCLASS()
 class STRATEGY_GAME_API ATile_Manager : public AActor
@@ -33,11 +32,15 @@ protected:
 
 protected:
 	UFUNCTION(BlueprintCallable)
-	void createTile(int x, int y, int i);
-
-	
+	void CreateTile(int x, int y, int i);
 
 
 private:
 	TArray<ATile*> TilesArray;
+
 };
+
+
+
+
+
