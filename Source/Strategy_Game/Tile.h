@@ -57,9 +57,10 @@ struct FTileMetrics
 {
 	GENERATED_BODY()
 
-		static const float outerRadius;
+	static const float outerRadius;
 
 	static const float innerRadius;
+	static const float SolidInnerRadius;
 
 	static const FVector corners[7];
 
@@ -68,6 +69,10 @@ struct FTileMetrics
 	static const float HexBorderSize;
 
 	static const float ConnectionBridgeSize;
+
+	// Distortion
+	static const float IntensityOfDistortion;
+	static const float ScaleOfDestortionNoise;
 
 	static FVector GetFirstCorner(EHexDirection direction);
 	static FVector GetSecondCorner(EHexDirection direction);

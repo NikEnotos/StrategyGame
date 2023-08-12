@@ -82,6 +82,10 @@ void ATile_Manager::CreateBorders(ATile* tile)
 		FVector v3 = FTileMetrics::GetSecondSolidCorner(static_cast<EHexDirection>(i));
 		FVector v4 = FTileMetrics::GetSecondBorderCorner(static_cast<EHexDirection>(i));
 
+		//Distortion of Border corners
+		v1 += GetDistortionForTileAtPosition(tile, v1);	
+		v4 += GetDistortionForTileAtPosition(tile, v4);
+
 		//FVector2D UVforV1(FVector::);
 		FVector2D UVforV1(0.2, -.2);
 		FVector2D UVforV2(0, 0);
@@ -115,4 +119,11 @@ void ATile_Manager::AddQuad(FVector v1, FVector v2, FVector v3, FVector v4, FVec
 {
 	AddTriangle(v1, v2, v3, UVforV1, UVforV2, UVforV3, Vertices, Triangles, UV);
 	AddTriangle(v3, v4, v1, UVforV3, UVforV4, UVforV1, Vertices, Triangles, UV);
+}
+
+FVector ATile_Manager::GetDistortionForTileAtPosition(ATile* tile, FVector position)
+{
+	float xDistortion = FTileMetrics::IntensityOfDistortion * FMath::PerlinNoise3D((FVector(tile->GetActorLocation().X, tile->GetActorLocation().Y, tile->GetActorLocation().Z + 0.5) + position) * FTileMetrics::ScaleOfDestortionNoise);
+	float yDistortion = FTileMetrics::IntensityOfDistortion * FMath::PerlinNoise3D((FVector(tile->GetActorLocation().X, tile->GetActorLocation().Y, tile->GetActorLocation().Z + 100.5) + position) * FTileMetrics::ScaleOfDestortionNoise);
+	return FVector(xDistortion, yDistortion, 0);
 }

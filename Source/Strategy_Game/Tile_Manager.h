@@ -43,6 +43,8 @@ private:
 	void CreateBorders(ATile* tile);
 	void AddTriangle(FVector v1, FVector v2, FVector v3, FVector2D UVforV1, FVector2D UVforV2, FVector2D UVforV3, TArray<FVector>& Vertices, TArray<int>& Triangles, TArray<FVector2D>& UV);
 	void AddQuad(FVector v1, FVector v2, FVector v3, FVector v4, FVector2D UVforV1, FVector2D UVforV2, FVector2D UVforV3, FVector2D UVforV4, TArray<FVector>& Vertices, TArray<int>& Triangles, TArray<FVector2D>& UV);
+
+	FVector GetDistortionForTileAtPosition(ATile* tile, FVector position);
 };
 
 

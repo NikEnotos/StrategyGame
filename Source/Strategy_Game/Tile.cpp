@@ -57,10 +57,17 @@ FString FHexDirectionExtensions::DirectionToString(EHexDirection direction)
 	}
 }
 
-// Set up connection size
+// Setup values of Metrics
 const float FTileMetrics::HexRadius = 100.f;
 const float FTileMetrics::HexBorderSize = 30.f;
 const float FTileMetrics::ConnectionBridgeSize = 30.f;
+const float FTileMetrics::IntensityOfDistortion = 15.f;
+const float FTileMetrics::ScaleOfDestortionNoise = 0.03;
+
+const float FTileMetrics::SolidInnerRadius = FMath::Sqrt(FMath::Pow(FTileMetrics::HexRadius, 2) - FMath::Pow(FTileMetrics::HexRadius / 2, 2));
+const float FTileMetrics::innerRadius = FTileMetrics::SolidInnerRadius + FTileMetrics::HexBorderSize + FTileMetrics::ConnectionBridgeSize / 2.f;
+const float FTileMetrics::outerRadius = 2 * innerRadius / FMath::Sqrt(3);
+
 const FVector FTileMetrics::corners[7] = {
 	FVector(FTileMetrics::outerRadius, 0.f, 0.f),
 	FVector(0.5 * FTileMetrics::outerRadius, FTileMetrics::innerRadius, 0.f),
@@ -71,8 +78,6 @@ const FVector FTileMetrics::corners[7] = {
 	FVector(FTileMetrics::outerRadius, 0.f, 0.f)
 
 };
-const float FTileMetrics::outerRadius = FTileMetrics::HexRadius + FTileMetrics::HexBorderSize + FTileMetrics::ConnectionBridgeSize/2.f;
-const float FTileMetrics::innerRadius = outerRadius * FMath::Sqrt(3) / 2;
 
 FVector FTileMetrics::GetFirstCorner(EHexDirection direction)
 {
@@ -94,11 +99,11 @@ FVector FTileMetrics::GetSecondSolidCorner(EHexDirection direction)
 
 FVector FTileMetrics::GetFirsBorderCorner(EHexDirection direction)
 {
-	return GetFirstCorner(direction) * ((HexRadius + HexBorderSize) / outerRadius);
+	return GetFirstCorner(direction) * ((HexRadius + (2.f * HexBorderSize * FMath::Sqrt(3) / 3.f)) / outerRadius);
 }
 FVector FTileMetrics::GetSecondBorderCorner(EHexDirection direction)
 {
-	return GetSecondCorner(direction) * ((HexRadius + HexBorderSize) / outerRadius);
+	return GetSecondCorner(direction) * ((HexRadius + (2.f * HexBorderSize * FMath::Sqrt(3) / 3.f)) / outerRadius);
 }
 
 
