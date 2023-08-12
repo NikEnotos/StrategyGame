@@ -2,7 +2,7 @@
 #include "Tile_Manager.h"
 #include "Math/UnrealMathUtility.h"
 #include "Tile.h"
-
+#include "ProceduralMeshComponent.h"
 
 ATile_Manager::ATile_Manager()
 {
@@ -20,7 +20,7 @@ void ATile_Manager::BeginPlay()
 		for (int y = 0; y < MapWidth; ++y)
 		{
 			CreateTile(x, y, i);
-			TilesArray[i]->CreateBorders();
+			CreateBorders(TilesArray[i]);
 			++i;
 		}
 	}
@@ -67,4 +67,52 @@ void ATile_Manager::CreateTile(int x, int y, int i)
 	}
 
 	TilesArray[i] = newTile;
+}
+
+void ATile_Manager::CreateBorders(ATile* tile)
+{
+	for (int i = 0; i < 6; ++i)
+	{
+		TArray<FVector> Vertices;
+		TArray<int> Triangles;
+		TArray<FVector2D> UV0;
+
+		FVector v1 = FTileMetrics::GetFirsBorderCorner(static_cast<EHexDirection>(i));
+		FVector v2 = FTileMetrics::GetFirsSolidCorner(static_cast<EHexDirection>(i));
+		FVector v3 = FTileMetrics::GetSecondSolidCorner(static_cast<EHexDirection>(i));
+		FVector v4 = FTileMetrics::GetSecondBorderCorner(static_cast<EHexDirection>(i));
+
+		//FVector2D UVforV1(FVector::);
+		FVector2D UVforV1(0.2, -.2);
+		FVector2D UVforV2(0, 0);
+		FVector2D UVforV3(0, 1);
+		FVector2D UVforV4(0.2, 1.2);
+
+		AddQuad(v1, v2, v3, v4, UVforV1, UVforV2, UVforV3, UVforV4, Vertices, Triangles, UV0);
+
+		tile->GetBorder(static_cast<EHexDirection>(i))->CreateMeshSection(0, Vertices, Triangles, TArray<FVector>(), UV0, TArray<FColor>(), TArray<FProcMeshTangent>(), true);
+
+	}
+}
+
+void ATile_Manager::AddTriangle(FVector v1, FVector v2, FVector v3, FVector2D UVforV1, FVector2D UVforV2, FVector2D UVforV3, TArray<FVector>& Vertices, TArray<int>& Triangles, TArray<FVector2D>& UV)
+{
+	int count = Vertices.Num();
+
+	Vertices.Add(v1);
+	Vertices.Add(v2);
+	Vertices.Add(v3);
+
+	Triangles.Add(count);
+	Triangles.Add(count + 1);
+	Triangles.Add(count + 2);
+
+	UV.Add(UVforV1);
+	UV.Add(UVforV2);
+	UV.Add(UVforV3);
+}
+void ATile_Manager::AddQuad(FVector v1, FVector v2, FVector v3, FVector v4, FVector2D UVforV1, FVector2D UVforV2, FVector2D UVforV3, FVector2D UVforV4, TArray<FVector>& Vertices, TArray<int>& Triangles, TArray<FVector2D>& UV)
+{
+	AddTriangle(v1, v2, v3, UVforV1, UVforV2, UVforV3, Vertices, Triangles, UV);
+	AddTriangle(v3, v4, v1, UVforV3, UVforV4, UVforV1, Vertices, Triangles, UV);
 }

@@ -83,15 +83,11 @@ UCLASS()
 class STRATEGY_GAME_API ATile : public AActor
 {
 	GENERATED_BODY()
-	
+
 
 public:
 	UPROPERTY(VisibleAnywhere)
 		FHexCoordinates coordinates;
-
-	////// Borders
-	UPROPERTY(VisibleAnywhere)
-		TArray<UProceduralMeshComponent*> Borders;
 
 public:
 	ATile();
@@ -101,7 +97,7 @@ public:
 	ATile* GetNeighbor(EHexDirection direction);
 	void SetNeighbor(EHexDirection direction, ATile* tile);
 
-	void CreateBorders();
+	UProceduralMeshComponent* GetBorder(EHexDirection direction);
 
 
 
@@ -118,10 +114,13 @@ protected:
 
 private:
 	UPROPERTY(VisibleAnywhere)
-	TArray<ATile*> neighbors;
+		TArray<ATile*> neighbors;
+
+	UPROPERTY(VisibleAnywhere)
+		TArray<UProceduralMeshComponent*> Borders;
+
 
 private:
 	void DefineBordersProceduralMeshes();
-
 
 };

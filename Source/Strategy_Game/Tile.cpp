@@ -109,9 +109,6 @@ ATile::ATile()
 	// Set number of elements of array
 	neighbors.SetNumZeroed(6);
 
-	//RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComp"));
-	//TileMesh->SetupAttachment(RootComponent);
-
 	TileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TileMesh"));
 	RootComponent = TileMesh;
 
@@ -144,6 +141,10 @@ void ATile::SetNeighbor(EHexDirection direction, ATile* tile)
 	tile->neighbors[int(FHexDirectionExtensions::Opposite(direction))] = this;
 }
 
+UProceduralMeshComponent* ATile::GetBorder(EHexDirection direction)
+{
+	return Borders[(int)direction];
+}
 
 void ATile::DefineBordersProceduralMeshes()
 {
@@ -155,28 +156,4 @@ void ATile::DefineBordersProceduralMeshes()
 	}
 }
 
-void ATile::CreateBorders()
-{
-	for (int i = 0; i < 6; ++i)
-	{
-		TArray<FVector> Vertices;
-		TArray<int> Triangles;
 
-		// First Triangle
-		Vertices.Add(FTileMetrics::GetFirsBorderCorner(static_cast<EHexDirection>(i)));
-		Vertices.Add(FTileMetrics::GetFirsSolidCorner(static_cast<EHexDirection>(i)));
-		Vertices.Add(FTileMetrics::GetSecondSolidCorner(static_cast<EHexDirection>(i)));
-		Triangles.Add(0);
-		Triangles.Add(1);
-		Triangles.Add(2);
-		// Second Triangle
-		Vertices.Add(FTileMetrics::GetSecondSolidCorner(static_cast<EHexDirection>(i)));
-		Vertices.Add(FTileMetrics::GetSecondBorderCorner(static_cast<EHexDirection>(i)));
-		Vertices.Add(FTileMetrics::GetFirsBorderCorner(static_cast<EHexDirection>(i)));
-		Triangles.Add(3);
-		Triangles.Add(4);
-		Triangles.Add(5);
-
-		Borders[i]->CreateMeshSection(0, Vertices, Triangles, TArray<FVector>(), TArray<FVector2D>(), TArray<FColor>(), TArray<FProcMeshTangent>(), true);
-	}
-}
