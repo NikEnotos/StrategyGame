@@ -24,38 +24,6 @@ EHexDirection FHexDirectionExtensions::Next(EHexDirection direction)
 {
 	return direction == EHexDirection::NW ? EHexDirection::NE : static_cast<EHexDirection>((int)direction + 1);
 }
-FString FHexDirectionExtensions::DirectionToString(EHexDirection direction)
-{
-	switch (direction)
-	{
-		case EHexDirection::NE:
-			return TEXT("NE");
-			break;
-
-		case EHexDirection::E:
-			return TEXT("E");
-			break;
-
-		case EHexDirection::SE:
-			return TEXT("SE");
-			break;
-
-		case EHexDirection::SW:
-			return TEXT("SW");
-			break;
-
-		case EHexDirection::W:
-			return TEXT("W");
-			break;
-
-		case EHexDirection::NW:
-			return TEXT("NW");
-			break;
-
-		default:
-			return TEXT("NONE");
-	}
-}
 
 // Setup values of Metrics
 const float FTileMetrics::HexRadius = 100.f;
@@ -88,7 +56,7 @@ FVector FTileMetrics::GetSecondCorner(EHexDirection direction)
 	return corners[(int)direction + 1];
 }
 
-FVector FTileMetrics::GetFirsSolidCorner(EHexDirection direction)
+FVector FTileMetrics::GetFirstSolidCorner(EHexDirection direction)
 {
 	return GetFirstCorner(direction) * (HexRadius / outerRadius);
 }
@@ -97,7 +65,7 @@ FVector FTileMetrics::GetSecondSolidCorner(EHexDirection direction)
 	return GetSecondCorner(direction) * (HexRadius / outerRadius);
 }
 
-FVector FTileMetrics::GetFirsBorderCorner(EHexDirection direction)
+FVector FTileMetrics::GetFirstBorderCorner(EHexDirection direction)
 {
 	return GetFirstCorner(direction) * ((HexRadius + (2.f * HexBorderSize * FMath::Sqrt(3) / 3.f)) / outerRadius);
 }
@@ -105,7 +73,6 @@ FVector FTileMetrics::GetSecondBorderCorner(EHexDirection direction)
 {
 	return GetSecondCorner(direction) * ((HexRadius + (2.f * HexBorderSize * FMath::Sqrt(3) / 3.f)) / outerRadius);
 }
-
 
 ATile::ATile()
 {
@@ -118,7 +85,8 @@ ATile::ATile()
 	RootComponent = TileMesh;
 
 	DefineBordersProceduralMeshes();
-
+	DefineConnectionsProceduralMeshes();
+	DefineTriangleConnectionsProceduralMeshes();
 }
 
 void ATile::BeginPlay()
@@ -148,17 +116,72 @@ void ATile::SetNeighbor(EHexDirection direction, ATile* tile)
 
 UProceduralMeshComponent* ATile::GetBorder(EHexDirection direction)
 {
-	return Borders[(int)direction];
+	//return Borders[(int)direction];
+	//DEBUG
+	return (UProceduralMeshComponent*)(RootComponent->GetChildComponent((int)direction));
+}
+UProceduralMeshComponent* ATile::GetConnection(EHexDirection direction)
+{
+	if (direction <= EHexDirection::SE)
+	{
+		return (UProceduralMeshComponent*)(RootComponent->GetChildComponent(6 + (int)direction)); // 6 is number of borders
+	}
+	else
+	{
+		if (GetNeighbor(direction) == nullptr) return nullptr; // if there is no neighbor in the direction, return nullprt
+		return (UProceduralMeshComponent*)(GetNeighbor(direction)->GetConnection(FHexDirectionExtensions::Opposite(direction)));
+	}
+}
+UProceduralMeshComponent* ATile::GetTriangleConnection(EHexDirection direction)
+{
+	if (direction <= EHexDirection::SE)
+	{
+		return (UProceduralMeshComponent*)(RootComponent->GetChildComponent(6 + 3 + (int)direction)); // 6 is number of borders and 3 is number of connections
+	}
+	else
+	{
+		if (GetNeighbor(direction) == nullptr) return nullptr; // if there is no neighbor in the direction, return nullprt
+		return (UProceduralMeshComponent*)(GetNeighbor(direction)->GetTriangleConnection(FHexDirectionExtensions::Opposite(direction)));
+	}
 }
 
 void ATile::DefineBordersProceduralMeshes()
 {
+	TArray<FName> borderName{ FName(TEXT("Border NE")), FName(TEXT("Border E")), FName(TEXT("Border SE")), FName(TEXT("Border SW")), FName(TEXT("Border W")), FName(TEXT("Border NW")) };
+
 	for (int i = 0; i < 6; ++i)
 	{
-		UProceduralMeshComponent* border = CreateDefaultSubobject<UProceduralMeshComponent>((FName)FHexDirectionExtensions::DirectionToString(static_cast<EHexDirection>(i)));
-		border->SetupAttachment(GetRootComponent()); // If you attach border to hex, its start coordinates is centre of the hex 
+		UProceduralMeshComponent* border = CreateDefaultSubobject<UProceduralMeshComponent>(borderName[i]);
+		border->SetupAttachment(RootComponent); // If you attach border to hex, its start coordinates is centre of the hex 
+		//DEBUG
 		Borders.Add(border);
 	}
+
 }
+void ATile::DefineConnectionsProceduralMeshes()
+{
+	TArray<FName> borderName{ FName(TEXT("Connection NE")), FName(TEXT("Connection E")), FName(TEXT("Connection SE")) };
+
+	for (int i = 0; i < 3; ++i)
+	{
+		UProceduralMeshComponent* connection = CreateDefaultSubobject<UProceduralMeshComponent>(borderName[i]);
+		connection->SetupAttachment(RootComponent); // If you attach border to hex, its start coordinates is centre of the hex 
+		//DEBUG
+		Connections.Add(connection);
+	}
+}
+void ATile::DefineTriangleConnectionsProceduralMeshes()
+{
+	TArray<FName> borderName{ FName(TEXT("Triangle connection NE")), FName(TEXT("Triangle connection E")), FName(TEXT("Triangle connection SE")) };
+
+	for (int i = 0; i < 3; ++i)
+	{
+		UProceduralMeshComponent* triangleConnection = CreateDefaultSubobject<UProceduralMeshComponent>(borderName[i]);
+		triangleConnection->SetupAttachment(RootComponent); // If you attach border to hex, its start coordinates is centre of the hex 
+		//DEBUG
+		TriangleConnections.Add(triangleConnection);
+	}
+}
+
 
 

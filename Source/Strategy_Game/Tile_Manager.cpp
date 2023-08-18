@@ -25,6 +25,11 @@ void ATile_Manager::BeginPlay()
 		}
 	}
 
+	for (auto tile : TilesArray)
+	{
+		CreateConnections(tile);
+	}
+
 }
 
 void ATile_Manager::CreateTile(int x, int y, int i)
@@ -38,6 +43,8 @@ void ATile_Manager::CreateTile(int x, int y, int i)
 	// Spawn tile at the position
 	ATile* newTile = GetWorld()->SpawnActor<ATile>(TileMesh, position, FRotator::ZeroRotator);
 	newTile->coordinates = FHexCoordinates::FromOffsetCoordinates(x, y);
+
+	TilesArray[i] = newTile;
 
 	// Associate neighbors
 	if (y > 0)
@@ -65,8 +72,6 @@ void ATile_Manager::CreateTile(int x, int y, int i)
 			}
 		}
 	}
-
-	TilesArray[i] = newTile;
 }
 
 void ATile_Manager::CreateBorders(ATile* tile)
@@ -77,8 +82,8 @@ void ATile_Manager::CreateBorders(ATile* tile)
 		TArray<int> Triangles;
 		TArray<FVector2D> UV0;
 
-		FVector v1 = FTileMetrics::GetFirsBorderCorner(static_cast<EHexDirection>(i));
-		FVector v2 = FTileMetrics::GetFirsSolidCorner(static_cast<EHexDirection>(i));
+		FVector v1 = FTileMetrics::GetFirstBorderCorner(static_cast<EHexDirection>(i));
+		FVector v2 = FTileMetrics::GetFirstSolidCorner(static_cast<EHexDirection>(i));
 		FVector v3 = FTileMetrics::GetSecondSolidCorner(static_cast<EHexDirection>(i));
 		FVector v4 = FTileMetrics::GetSecondBorderCorner(static_cast<EHexDirection>(i));
 
@@ -98,6 +103,52 @@ void ATile_Manager::CreateBorders(ATile* tile)
 
 	}
 }
+void ATile_Manager::CreateConnections(ATile* tile)
+{
+	for (int i = 0; i < 3; ++i)
+	{
+		if (tile->GetNeighbor(static_cast<EHexDirection>(i)) == nullptr) continue;
+
+		TArray<FVector> Vertices;
+		TArray<int> Triangles;
+		TArray<FVector2D> UV0;
+		
+		FVector neighboursFirstCornerLocation = tile->GetNeighbor(static_cast<EHexDirection>(i))->GetActorLocation() + FTileMetrics::GetSecondBorderCorner(FHexDirectionExtensions::Opposite(static_cast<EHexDirection>(i)));
+		FVector tilesFirstCornerLocation = tile->GetActorLocation() + FTileMetrics::GetFirstBorderCorner(static_cast<EHexDirection>(i));
+		FVector v1 = FTileMetrics::GetFirstBorderCorner(static_cast<EHexDirection>(i)) + neighboursFirstCornerLocation - tilesFirstCornerLocation;
+
+		FVector v2 = FTileMetrics::GetFirstBorderCorner(static_cast<EHexDirection>(i));
+		FVector v3 = FTileMetrics::GetSecondBorderCorner(static_cast<EHexDirection>(i));
+
+		//DrawDebugSphere(GetWorld(), v3, 10.f, 4, FColor::Green, true);
+
+		FVector neighboursSecondCornerLocation = tile->GetNeighbor(static_cast<EHexDirection>(i))->GetActorLocation() + FTileMetrics::GetFirstBorderCorner(FHexDirectionExtensions::Opposite(static_cast<EHexDirection>(i)));
+		FVector tilesSecondCornerLocation = tile->GetActorLocation() + FTileMetrics::GetSecondBorderCorner(static_cast<EHexDirection>(i));
+		FVector v4 = FTileMetrics::GetSecondBorderCorner(static_cast<EHexDirection>(i)) + neighboursSecondCornerLocation - tilesSecondCornerLocation;
+
+		//Distortion of Border corners
+		v1 += GetDistortionForTileAtPosition(tile, v1);
+		v2 += GetDistortionForTileAtPosition(tile, v2);
+		v3 += GetDistortionForTileAtPosition(tile, v3);
+		v4 += GetDistortionForTileAtPosition(tile, v4);
+
+		//FVector2D UVforV1(FVector::);
+		FVector2D UVforV1(0.25, 0);
+		FVector2D UVforV2(0, 0);
+		FVector2D UVforV3(0, 1);
+		FVector2D UVforV4(0.25, 1);
+
+		AddQuad(v1, v2, v3, v4, UVforV1, UVforV2, UVforV3, UVforV4, Vertices, Triangles, UV0);
+
+		tile->GetConnection(static_cast<EHexDirection>(i))->CreateMeshSection(0, Vertices, Triangles, TArray<FVector>(), UV0, TArray<FColor>(), TArray<FProcMeshTangent>(), true);
+
+	}
+}
+void ATile_Manager::CreateTriangleConnections(ATile* tile)
+{
+
+}
+
 
 void ATile_Manager::AddTriangle(FVector v1, FVector v2, FVector v3, FVector2D UVforV1, FVector2D UVforV2, FVector2D UVforV3, TArray<FVector>& Vertices, TArray<int>& Triangles, TArray<FVector2D>& UV)
 {

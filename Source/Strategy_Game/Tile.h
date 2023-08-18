@@ -48,8 +48,6 @@ struct FHexDirectionExtensions
 	static EHexDirection Previous(EHexDirection direction);
 
 	static EHexDirection Next(EHexDirection direction);
-
-	static FString DirectionToString(EHexDirection direction);
 };
 
 USTRUCT()
@@ -77,10 +75,10 @@ struct FTileMetrics
 	static FVector GetFirstCorner(EHexDirection direction);
 	static FVector GetSecondCorner(EHexDirection direction);
 
-	static FVector GetFirsSolidCorner(EHexDirection direction);
+	static FVector GetFirstSolidCorner(EHexDirection direction);
 	static FVector GetSecondSolidCorner(EHexDirection direction);
 
-	static FVector GetFirsBorderCorner(EHexDirection direction);
+	static FVector GetFirstBorderCorner(EHexDirection direction);
 	static FVector GetSecondBorderCorner(EHexDirection direction);
 };
 
@@ -103,6 +101,8 @@ public:
 	void SetNeighbor(EHexDirection direction, ATile* tile);
 
 	UProceduralMeshComponent* GetBorder(EHexDirection direction);
+	UProceduralMeshComponent* GetConnection(EHexDirection direction);
+	UProceduralMeshComponent* GetTriangleConnection(EHexDirection direction);
 
 
 
@@ -121,11 +121,17 @@ private:
 	UPROPERTY(VisibleAnywhere)
 		TArray<ATile*> neighbors;
 
+	//DEBUG
 	UPROPERTY(VisibleAnywhere)
 		TArray<UProceduralMeshComponent*> Borders;
-
+	UPROPERTY(VisibleAnywhere)
+		TArray<UProceduralMeshComponent*> Connections;
+	UPROPERTY(VisibleAnywhere)
+		TArray<UProceduralMeshComponent*> TriangleConnections;
 
 private:
 	void DefineBordersProceduralMeshes();
+	void DefineConnectionsProceduralMeshes();
+	void DefineTriangleConnectionsProceduralMeshes();
 
 };
