@@ -26,7 +26,15 @@ protected:
 	// TEST
 	UPROPERTY(EditAnywhere, Category = "Map Settings")
 		TSubclassOf<ATile> TileMesh;
-		
+
+	//DEBUG
+	UPROPERTY(EditAnywhere, Category = "Map Settings")
+		bool bCreateBorders = true;
+	UPROPERTY(EditAnywhere, Category = "Map Settings")
+		bool bCreateConnections = true;
+	UPROPERTY(EditAnywhere, Category = "Map Settings")
+		bool bCreateTriangleConnections = true;
+
 	
 protected:
 	virtual void BeginPlay() override;

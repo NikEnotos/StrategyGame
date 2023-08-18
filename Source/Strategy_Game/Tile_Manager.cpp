@@ -20,15 +20,17 @@ void ATile_Manager::BeginPlay()
 		for (int y = 0; y < MapWidth; ++y)
 		{
 			CreateTile(x, y, i);
-			CreateBorders(TilesArray[i]);
+			//DEBUG
+			if (bCreateBorders) CreateBorders(TilesArray[i]);
 			++i;
 		}
 	}
 
 	for (auto tile : TilesArray)
 	{
-		CreateConnections(tile);
-		CreateTriangleConnections(tile);
+		//DEBUG
+		if (bCreateConnections) CreateConnections(tile);
+		if (bCreateTriangleConnections) CreateTriangleConnections(tile);
 	}
 
 }
@@ -77,11 +79,13 @@ void ATile_Manager::CreateTile(int x, int y, int i)
 
 void ATile_Manager::CreateBorders(ATile* tile)
 {
+	TArray<FVector> Vertices;
+	TArray<int> Triangles;
+	TArray<FVector2D> UV0;
+
 	for (int i = 0; i < 6; ++i)
 	{
-		TArray<FVector> Vertices;
-		TArray<int> Triangles;
-		TArray<FVector2D> UV0;
+
 
 		FVector v1 = FTileMetrics::GetFirstBorderCorner(static_cast<EHexDirection>(i));
 		FVector v2 = FTileMetrics::GetFirstSolidCorner(static_cast<EHexDirection>(i));
@@ -100,20 +104,23 @@ void ATile_Manager::CreateBorders(ATile* tile)
 
 		AddQuad(v1, v2, v3, v4, UVforV1, UVforV2, UVforV3, UVforV4, Vertices, Triangles, UV0);
 
-		tile->GetBorder(static_cast<EHexDirection>(i))->CreateMeshSection(0, Vertices, Triangles, TArray<FVector>(), UV0, TArray<FColor>(), TArray<FProcMeshTangent>(), true);
-
+		tile->GetBordersComponent()->CreateMeshSection(i, Vertices, Triangles, TArray<FVector>(), UV0, TArray<FColor>(), TArray<FProcMeshTangent>(), true);
 	}
+
+	//TEST
+	//tile->GetBorder(static_cast<EHexDirection>(0))->SetMaterial(index, material);
+
 }
 void ATile_Manager::CreateConnections(ATile* tile)
 {
+	TArray<FVector> Vertices;
+	TArray<int> Triangles;
+	TArray<FVector2D> UV0;
+
 	for (int i = 0; i < 3; ++i)
 	{
 		if (tile->GetNeighbor(static_cast<EHexDirection>(i)) == nullptr) continue;
-
-		TArray<FVector> Vertices;
-		TArray<int> Triangles;
-		TArray<FVector2D> UV0;
-		
+	
 		FVector neighboursFirstCornerLocation = tile->GetNeighbor(static_cast<EHexDirection>(i))->GetActorLocation() + FTileMetrics::GetSecondBorderCorner(FHexDirectionExtensions::Opposite(static_cast<EHexDirection>(i)));
 		FVector tilesFirstCornerLocation = tile->GetActorLocation() + FTileMetrics::GetFirstBorderCorner(static_cast<EHexDirection>(i));
 		FVector v1 = FTileMetrics::GetFirstBorderCorner(static_cast<EHexDirection>(i)) + neighboursFirstCornerLocation - tilesFirstCornerLocation;
@@ -141,19 +148,19 @@ void ATile_Manager::CreateConnections(ATile* tile)
 
 		AddQuad(v1, v2, v3, v4, UVforV1, UVforV2, UVforV3, UVforV4, Vertices, Triangles, UV0);
 
-		tile->GetConnection(static_cast<EHexDirection>(i))->CreateMeshSection(0, Vertices, Triangles, TArray<FVector>(), UV0, TArray<FColor>(), TArray<FProcMeshTangent>(), true);
-
+		tile->GetConnectionsComponent()->CreateMeshSection(i, Vertices, Triangles, TArray<FVector>(), UV0, TArray<FColor>(), TArray<FProcMeshTangent>(), true);
 	}
 }
 void ATile_Manager::CreateTriangleConnections(ATile* tile)
 {
+	TArray<FVector> Vertices;
+	TArray<int> Triangles;
+	TArray<FVector2D> UV0;
+
 	for (int i = 0; i < 3; ++i)
 	{
 		if (tile->GetNeighbor(FHexDirectionExtensions::Previous(static_cast<EHexDirection>(i))) == nullptr || tile->GetNeighbor(static_cast<EHexDirection>(i)) == nullptr) continue;
 
-		TArray<FVector> Vertices;
-		TArray<int> Triangles;
-		TArray<FVector2D> UV0;
 
 		FVector neighboursFirstCornerLocation = tile->GetNeighbor(FHexDirectionExtensions::Previous(static_cast<EHexDirection>(i)))->GetActorLocation() + FTileMetrics::GetFirstBorderCorner(FHexDirectionExtensions::Previous(FHexDirectionExtensions::Opposite(static_cast<EHexDirection>(i))));
 		FVector tilesFirstCornerLocation = tile->GetActorLocation() + FTileMetrics::GetFirstBorderCorner(static_cast<EHexDirection>(i));
@@ -178,7 +185,7 @@ void ATile_Manager::CreateTriangleConnections(ATile* tile)
 
 		AddTriangle(v1, v2, v3, UVforV1, UVforV2, UVforV3, Vertices, Triangles, UV0);
 
-		tile->GetTriangleConnection(static_cast<EHexDirection>(i))->CreateMeshSection(0, Vertices, Triangles, TArray<FVector>(), UV0, TArray<FColor>(), TArray<FProcMeshTangent>(), true);
+		tile->GetTriangleConnectionsComponent()->CreateMeshSection(i, Vertices, Triangles, TArray<FVector>(), UV0, TArray<FColor>(), TArray<FProcMeshTangent>(), true);
 
 	}
 }

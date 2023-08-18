@@ -84,9 +84,9 @@ ATile::ATile()
 	TileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TileMesh"));
 	RootComponent = TileMesh;
 
-	DefineBordersProceduralMeshes();
-	DefineConnectionsProceduralMeshes();
-	DefineTriangleConnectionsProceduralMeshes();
+	DefineBordersProceduralMeshe();
+	DefineConnectionsProceduralMeshe();
+	DefineTriangleConnectionsProceduralMeshe();
 }
 
 void ATile::BeginPlay()
@@ -114,73 +114,33 @@ void ATile::SetNeighbor(EHexDirection direction, ATile* tile)
 	tile->neighbors[int(FHexDirectionExtensions::Opposite(direction))] = this;
 }
 
-UProceduralMeshComponent* ATile::GetBorder(EHexDirection direction)
+UProceduralMeshComponent* ATile::GetBordersComponent()
 {
-	//return Borders[(int)direction];
-	//DEBUG
-	return (UProceduralMeshComponent*)(RootComponent->GetChildComponent((int)direction));
+	return (UProceduralMeshComponent*)(RootComponent->GetChildComponent(0));
 }
-UProceduralMeshComponent* ATile::GetConnection(EHexDirection direction)
+UProceduralMeshComponent* ATile::GetConnectionsComponent()
 {
-	if (direction <= EHexDirection::SE)
-	{
-		return (UProceduralMeshComponent*)(RootComponent->GetChildComponent(6 + (int)direction)); // 6 is number of borders
-	}
-	else
-	{
-		if (GetNeighbor(direction) == nullptr) return nullptr; // if there is no neighbor in the direction, return nullprt
-		return (UProceduralMeshComponent*)(GetNeighbor(direction)->GetConnection(FHexDirectionExtensions::Opposite(direction)));
-	}
+	return (UProceduralMeshComponent*)(RootComponent->GetChildComponent(1));
 }
-UProceduralMeshComponent* ATile::GetTriangleConnection(EHexDirection direction)
+UProceduralMeshComponent* ATile::GetTriangleConnectionsComponent()
 {
-	if (direction <= EHexDirection::SE)
-	{
-		return (UProceduralMeshComponent*)(RootComponent->GetChildComponent(6 + 3 + (int)direction)); // 6 is number of borders and 3 is number of connections
-	}
-	else
-	{
-		if (GetNeighbor(direction) == nullptr) return nullptr; // if there is no neighbor in the direction, return nullprt
-		return (UProceduralMeshComponent*)(GetNeighbor(direction)->GetTriangleConnection(FHexDirectionExtensions::Opposite(direction)));
-	}
+	return (UProceduralMeshComponent*)(RootComponent->GetChildComponent(2)); 
 }
 
-void ATile::DefineBordersProceduralMeshes()
+void ATile::DefineBordersProceduralMeshe()
 {
-	TArray<FName> borderName{ FName(TEXT("Border NE")), FName(TEXT("Border E")), FName(TEXT("Border SE")), FName(TEXT("Border SW")), FName(TEXT("Border W")), FName(TEXT("Border NW")) };
-
-	for (int i = 0; i < 6; ++i)
-	{
-		UProceduralMeshComponent* border = CreateDefaultSubobject<UProceduralMeshComponent>(borderName[i]);
-		border->SetupAttachment(RootComponent); // If you attach border to hex, its start coordinates is centre of the hex 
-		//DEBUG
-		Borders.Add(border);
-	}
-
+	UProceduralMeshComponent* border = CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("Borders"));
+	border->SetupAttachment(RootComponent); // If you attach border to hex, its start coordinates is centre of the hex 
 }
-void ATile::DefineConnectionsProceduralMeshes()
+void ATile::DefineConnectionsProceduralMeshe()
 {
-	TArray<FName> borderName{ FName(TEXT("Connection NE")), FName(TEXT("Connection E")), FName(TEXT("Connection SE")) };
-
-	for (int i = 0; i < 3; ++i)
-	{
-		UProceduralMeshComponent* connection = CreateDefaultSubobject<UProceduralMeshComponent>(borderName[i]);
-		connection->SetupAttachment(RootComponent); // If you attach border to hex, its start coordinates is centre of the hex 
-		//DEBUG
-		Connections.Add(connection);
-	}
+	UProceduralMeshComponent* connection = CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("NE_E_SE_Connections"));
+	connection->SetupAttachment(RootComponent); // If you attach border to hex, its start coordinates is centre of the hex 
 }
-void ATile::DefineTriangleConnectionsProceduralMeshes()
+void ATile::DefineTriangleConnectionsProceduralMeshe()
 {
-	TArray<FName> borderName{ FName(TEXT("Triangle connection NE")), FName(TEXT("Triangle connection E")), FName(TEXT("Triangle connection SE")) };
-
-	for (int i = 0; i < 3; ++i)
-	{
-		UProceduralMeshComponent* triangleConnection = CreateDefaultSubobject<UProceduralMeshComponent>(borderName[i]);
-		triangleConnection->SetupAttachment(RootComponent); // If you attach border to hex, its start coordinates is centre of the hex 
-		//DEBUG
-		TriangleConnections.Add(triangleConnection);
-	}
+	UProceduralMeshComponent* triangleConnection = CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("NE_E_SE_TriangleConnections"));
+	triangleConnection->SetupAttachment(RootComponent); // If you attach border to hex, its start coordinates is centre of the hex 
 }
 
 

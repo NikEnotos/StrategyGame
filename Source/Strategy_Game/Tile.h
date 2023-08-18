@@ -100,9 +100,9 @@ public:
 	ATile* GetNeighbor(EHexDirection direction);
 	void SetNeighbor(EHexDirection direction, ATile* tile);
 
-	UProceduralMeshComponent* GetBorder(EHexDirection direction);
-	UProceduralMeshComponent* GetConnection(EHexDirection direction);
-	UProceduralMeshComponent* GetTriangleConnection(EHexDirection direction);
+	UProceduralMeshComponent* GetBordersComponent();
+	UProceduralMeshComponent* GetConnectionsComponent();
+	UProceduralMeshComponent* GetTriangleConnectionsComponent();
 
 
 
@@ -121,17 +121,9 @@ private:
 	UPROPERTY(VisibleAnywhere)
 		TArray<ATile*> neighbors;
 
-	//DEBUG
-	UPROPERTY(VisibleAnywhere)
-		TArray<UProceduralMeshComponent*> Borders;
-	UPROPERTY(VisibleAnywhere)
-		TArray<UProceduralMeshComponent*> Connections;
-	UPROPERTY(VisibleAnywhere)
-		TArray<UProceduralMeshComponent*> TriangleConnections;
-
 private:
-	void DefineBordersProceduralMeshes();
-	void DefineConnectionsProceduralMeshes();
-	void DefineTriangleConnectionsProceduralMeshes();
+	void DefineBordersProceduralMeshe();
+	void DefineConnectionsProceduralMeshe();
+	void DefineTriangleConnectionsProceduralMeshe();
 
 };
