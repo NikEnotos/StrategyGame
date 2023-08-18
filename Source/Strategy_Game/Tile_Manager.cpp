@@ -79,13 +79,13 @@ void ATile_Manager::CreateTile(int x, int y, int i)
 
 void ATile_Manager::CreateBorders(ATile* tile)
 {
-	TArray<FVector> Vertices;
-	TArray<int> Triangles;
-	TArray<FVector2D> UV0;
+
 
 	for (int i = 0; i < 6; ++i)
 	{
-
+		TArray<FVector> Vertices;
+		TArray<int> Triangles;
+		TArray<FVector2D> UV0;
 
 		FVector v1 = FTileMetrics::GetFirstBorderCorner(static_cast<EHexDirection>(i));
 		FVector v2 = FTileMetrics::GetFirstSolidCorner(static_cast<EHexDirection>(i));
@@ -113,14 +113,15 @@ void ATile_Manager::CreateBorders(ATile* tile)
 }
 void ATile_Manager::CreateConnections(ATile* tile)
 {
-	TArray<FVector> Vertices;
-	TArray<int> Triangles;
-	TArray<FVector2D> UV0;
 
 	for (int i = 0; i < 3; ++i)
 	{
 		if (tile->GetNeighbor(static_cast<EHexDirection>(i)) == nullptr) continue;
 	
+		TArray<FVector> Vertices;
+		TArray<int> Triangles;
+		TArray<FVector2D> UV0;
+
 		FVector neighboursFirstCornerLocation = tile->GetNeighbor(static_cast<EHexDirection>(i))->GetActorLocation() + FTileMetrics::GetSecondBorderCorner(FHexDirectionExtensions::Opposite(static_cast<EHexDirection>(i)));
 		FVector tilesFirstCornerLocation = tile->GetActorLocation() + FTileMetrics::GetFirstBorderCorner(static_cast<EHexDirection>(i));
 		FVector v1 = FTileMetrics::GetFirstBorderCorner(static_cast<EHexDirection>(i)) + neighboursFirstCornerLocation - tilesFirstCornerLocation;
@@ -153,14 +154,14 @@ void ATile_Manager::CreateConnections(ATile* tile)
 }
 void ATile_Manager::CreateTriangleConnections(ATile* tile)
 {
-	TArray<FVector> Vertices;
-	TArray<int> Triangles;
-	TArray<FVector2D> UV0;
 
 	for (int i = 0; i < 3; ++i)
 	{
 		if (tile->GetNeighbor(FHexDirectionExtensions::Previous(static_cast<EHexDirection>(i))) == nullptr || tile->GetNeighbor(static_cast<EHexDirection>(i)) == nullptr) continue;
 
+		TArray<FVector> Vertices;
+		TArray<int> Triangles;
+		TArray<FVector2D> UV0;
 
 		FVector neighboursFirstCornerLocation = tile->GetNeighbor(FHexDirectionExtensions::Previous(static_cast<EHexDirection>(i)))->GetActorLocation() + FTileMetrics::GetFirstBorderCorner(FHexDirectionExtensions::Previous(FHexDirectionExtensions::Opposite(static_cast<EHexDirection>(i))));
 		FVector tilesFirstCornerLocation = tile->GetActorLocation() + FTileMetrics::GetFirstBorderCorner(static_cast<EHexDirection>(i));
