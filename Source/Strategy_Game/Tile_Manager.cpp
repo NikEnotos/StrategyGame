@@ -28,6 +28,7 @@ void ATile_Manager::BeginPlay()
 	for (auto tile : TilesArray)
 	{
 		CreateConnections(tile);
+		CreateTriangleConnections(tile);
 	}
 
 }
@@ -146,7 +147,40 @@ void ATile_Manager::CreateConnections(ATile* tile)
 }
 void ATile_Manager::CreateTriangleConnections(ATile* tile)
 {
+	for (int i = 0; i < 3; ++i)
+	{
+		if (tile->GetNeighbor(FHexDirectionExtensions::Previous(static_cast<EHexDirection>(i))) == nullptr || tile->GetNeighbor(static_cast<EHexDirection>(i)) == nullptr) continue;
 
+		TArray<FVector> Vertices;
+		TArray<int> Triangles;
+		TArray<FVector2D> UV0;
+
+		FVector neighboursFirstCornerLocation = tile->GetNeighbor(FHexDirectionExtensions::Previous(static_cast<EHexDirection>(i)))->GetActorLocation() + FTileMetrics::GetFirstBorderCorner(FHexDirectionExtensions::Previous(FHexDirectionExtensions::Opposite(static_cast<EHexDirection>(i))));
+		FVector tilesFirstCornerLocation = tile->GetActorLocation() + FTileMetrics::GetFirstBorderCorner(static_cast<EHexDirection>(i));
+		FVector v1 = FTileMetrics::GetFirstBorderCorner(static_cast<EHexDirection>(i)) + neighboursFirstCornerLocation - tilesFirstCornerLocation;
+
+		FVector v2 = FTileMetrics::GetFirstBorderCorner(static_cast<EHexDirection>(i));
+
+		FVector neighboursSecondCornerLocation = tile->GetNeighbor(static_cast<EHexDirection>(i))->GetActorLocation() + FTileMetrics::GetSecondBorderCorner(FHexDirectionExtensions::Opposite(static_cast<EHexDirection>(i)));
+		FVector tilesSecondCornerLocation = tile->GetActorLocation() + FTileMetrics::GetFirstBorderCorner(static_cast<EHexDirection>(i));
+		FVector v3 = FTileMetrics::GetFirstBorderCorner(static_cast<EHexDirection>(i)) + neighboursSecondCornerLocation - tilesSecondCornerLocation;
+
+		
+		//Distortion of Border corners
+		v1 += GetDistortionForTileAtPosition(tile, v1);
+		v2 += GetDistortionForTileAtPosition(tile, v2);
+		v3 += GetDistortionForTileAtPosition(tile, v3);
+
+		//FVector2D UVforV1(FVector::);
+		FVector2D UVforV1(0.25, 0);
+		FVector2D UVforV2(0, 0);
+		FVector2D UVforV3(0, 1);
+
+		AddTriangle(v1, v2, v3, UVforV1, UVforV2, UVforV3, Vertices, Triangles, UV0);
+
+		tile->GetTriangleConnection(static_cast<EHexDirection>(i))->CreateMeshSection(0, Vertices, Triangles, TArray<FVector>(), UV0, TArray<FColor>(), TArray<FProcMeshTangent>(), true);
+
+	}
 }
 
 
