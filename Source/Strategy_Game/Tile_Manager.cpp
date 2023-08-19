@@ -3,6 +3,7 @@
 #include "Math/UnrealMathUtility.h"
 #include "Tile.h"
 #include "ProceduralMeshComponent.h"
+#include "KismetProceduralMeshLibrary.h"
 
 ATile_Manager::ATile_Manager()
 {
@@ -40,7 +41,7 @@ void ATile_Manager::CreateTile(int x, int y, int i)
 	FVector position;
 	position.X = x * (FTileMetrics::outerRadius * 1.5f);
 	position.Y = (y + x * 0.5f - x / 2) * (FTileMetrics::innerRadius * 2.f);
-	position.Z = 0.f;
+	position.Z = 20 * (FMath::Rand() % 5);
 
 
 	// Spawn tile at the position
@@ -80,31 +81,47 @@ void ATile_Manager::CreateTile(int x, int y, int i)
 void ATile_Manager::CreateBorders(ATile* tile)
 {
 
-
 	for (int i = 0; i < 6; ++i)
 	{
 		TArray<FVector> Vertices;
 		TArray<int> Triangles;
 		TArray<FVector2D> UV0;
+		TArray<FVector> Normals;
+		TArray<struct FProcMeshTangent> Tangents;
 
-		FVector v1 = FTileMetrics::GetFirstBorderCorner(static_cast<EHexDirection>(i));
-		FVector v2 = FTileMetrics::GetFirstSolidCorner(static_cast<EHexDirection>(i));
-		FVector v3 = FTileMetrics::GetSecondSolidCorner(static_cast<EHexDirection>(i));
-		FVector v4 = FTileMetrics::GetSecondBorderCorner(static_cast<EHexDirection>(i));
+		FVector borderStart = FTileMetrics::GetFirstBorderCorner(static_cast<EHexDirection>(i));
+		FVector solidStart = FTileMetrics::GetFirstSolidCorner(static_cast<EHexDirection>(i));
+		FVector solidEnd = FTileMetrics::GetSecondSolidCorner(static_cast<EHexDirection>(i));
+		FVector BborderEnd = FTileMetrics::GetSecondBorderCorner(static_cast<EHexDirection>(i));
 
-		//Distortion of Border corners
-		v1 += GetDistortionForTileAtPosition(tile, v1);	
-		v4 += GetDistortionForTileAtPosition(tile, v4);
-
-		//FVector2D UVforV1(FVector::);
+		// TODO: recalculate for each segment
 		FVector2D UVforV1(0.2, -.2);
 		FVector2D UVforV2(0, 0);
 		FVector2D UVforV3(0, 1);
 		FVector2D UVforV4(0.2, 1.2);
 
-		AddQuad(v1, v2, v3, v4, UVforV1, UVforV2, UVforV3, UVforV4, Vertices, Triangles, UV0);
 
-		tile->GetBordersComponent()->CreateMeshSection(i, Vertices, Triangles, TArray<FVector>(), UV0, TArray<FColor>(), TArray<FProcMeshTangent>(), true);
+		//Subdividing border into smaller squears
+		for (int iteration = 1; iteration <= NumberOfSegmentsOfTileSide; ++iteration)
+		{
+
+			FVector borderSegmentStart = FMath::Lerp(borderStart, BborderEnd, float(iteration - 1) / NumberOfSegmentsOfTileSide);
+			FVector solidSegmentStart = FMath::Lerp(solidStart, solidEnd, float(iteration - 1) / NumberOfSegmentsOfTileSide);
+
+			FVector borderSegmentEnd = FMath::Lerp(borderStart, BborderEnd, float(iteration) / NumberOfSegmentsOfTileSide);
+			FVector solidSegmentEnd = FMath::Lerp(solidStart, solidEnd, float(iteration) / NumberOfSegmentsOfTileSide);
+
+			borderSegmentStart += GetDistortionForTileAtPosition(tile, borderSegmentStart);
+			borderSegmentEnd += GetDistortionForTileAtPosition(tile, borderSegmentEnd);
+
+			AddQuad(borderSegmentStart, solidSegmentStart, solidSegmentEnd, borderSegmentEnd, UVforV1, UVforV2, UVforV3, UVforV4, Vertices, Triangles, UV0);
+
+		}
+
+		UKismetProceduralMeshLibrary::CalculateTangentsForMesh(Vertices, Triangles, UV0, Normals, Tangents);
+
+		tile->GetBordersComponent()->CreateMeshSection(i, Vertices, Triangles, Normals, UV0, TArray<FColor>(), Tangents, true);
+
 	}
 
 	//TEST
@@ -120,7 +137,9 @@ void ATile_Manager::CreateConnections(ATile* tile)
 	
 		TArray<FVector> Vertices;
 		TArray<int> Triangles;
-		TArray<FVector2D> UV0;
+		TArray<FVector2D> UV0;		
+		TArray<FVector> Normals;
+		TArray<struct FProcMeshTangent> Tangents;
 
 		FVector neighboursFirstCornerLocation = tile->GetNeighbor(static_cast<EHexDirection>(i))->GetActorLocation() + FTileMetrics::GetSecondBorderCorner(FHexDirectionExtensions::Opposite(static_cast<EHexDirection>(i)));
 		FVector tilesFirstCornerLocation = tile->GetActorLocation() + FTileMetrics::GetFirstBorderCorner(static_cast<EHexDirection>(i));
@@ -129,39 +148,52 @@ void ATile_Manager::CreateConnections(ATile* tile)
 		FVector v2 = FTileMetrics::GetFirstBorderCorner(static_cast<EHexDirection>(i));
 		FVector v3 = FTileMetrics::GetSecondBorderCorner(static_cast<EHexDirection>(i));
 
-		//DrawDebugSphere(GetWorld(), v3, 10.f, 4, FColor::Green, true);
-
 		FVector neighboursSecondCornerLocation = tile->GetNeighbor(static_cast<EHexDirection>(i))->GetActorLocation() + FTileMetrics::GetFirstBorderCorner(FHexDirectionExtensions::Opposite(static_cast<EHexDirection>(i)));
 		FVector tilesSecondCornerLocation = tile->GetActorLocation() + FTileMetrics::GetSecondBorderCorner(static_cast<EHexDirection>(i));
 		FVector v4 = FTileMetrics::GetSecondBorderCorner(static_cast<EHexDirection>(i)) + neighboursSecondCornerLocation - tilesSecondCornerLocation;
 
-		//Distortion of Border corners
-		v1 += GetDistortionForTileAtPosition(tile, v1);
-		v2 += GetDistortionForTileAtPosition(tile, v2);
-		v3 += GetDistortionForTileAtPosition(tile, v3);
-		v4 += GetDistortionForTileAtPosition(tile, v4);
-
-		//FVector2D UVforV1(FVector::);
+		// TODO: recalculate for each segment
 		FVector2D UVforV1(0.25, 0);
 		FVector2D UVforV2(0, 0);
 		FVector2D UVforV3(0, 1);
 		FVector2D UVforV4(0.25, 1);
 
-		AddQuad(v1, v2, v3, v4, UVforV1, UVforV2, UVforV3, UVforV4, Vertices, Triangles, UV0);
+		//Subdividing connection into smaller squears
+		for (int iteration = 1; iteration <= NumberOfSegmentsOfTileSide; ++iteration)
+		{
 
-		tile->GetConnectionsComponent()->CreateMeshSection(i, Vertices, Triangles, TArray<FVector>(), UV0, TArray<FColor>(), TArray<FProcMeshTangent>(), true);
+			FVector borderSegmentStart = FMath::Lerp(v1, v4, float(iteration - 1) / NumberOfSegmentsOfTileSide);
+			FVector solidSegmentStart = FMath::Lerp(v2, v3, float(iteration - 1) / NumberOfSegmentsOfTileSide);
+
+			FVector borderSegmentEnd = FMath::Lerp(v1, v4, float(iteration) / NumberOfSegmentsOfTileSide);
+			FVector solidSegmentEnd = FMath::Lerp(v2, v3, float(iteration) / NumberOfSegmentsOfTileSide);
+
+			borderSegmentStart += GetDistortionForTileAtPosition(tile, borderSegmentStart);
+			borderSegmentEnd += GetDistortionForTileAtPosition(tile, borderSegmentEnd);
+			solidSegmentStart += GetDistortionForTileAtPosition(tile, solidSegmentStart);
+			solidSegmentEnd += GetDistortionForTileAtPosition(tile, solidSegmentEnd);
+
+			AddQuad(borderSegmentStart, solidSegmentStart, solidSegmentEnd, borderSegmentEnd, UVforV1, UVforV2, UVforV3, UVforV4, Vertices, Triangles, UV0);
+		}
+
+		UKismetProceduralMeshLibrary::CalculateTangentsForMesh(Vertices, Triangles, UV0, Normals, Tangents);
+
+		tile->GetConnectionsComponent()->CreateMeshSection(i, Vertices, Triangles, Normals, UV0, TArray<FColor>(), Tangents, true);
+
 	}
 }
 void ATile_Manager::CreateTriangleConnections(ATile* tile)
 {
 
-	for (int i = 0; i < 3; ++i)
+	for (int i = 0; i < 2; ++i)
 	{
 		if (tile->GetNeighbor(FHexDirectionExtensions::Previous(static_cast<EHexDirection>(i))) == nullptr || tile->GetNeighbor(static_cast<EHexDirection>(i)) == nullptr) continue;
 
 		TArray<FVector> Vertices;
 		TArray<int> Triangles;
 		TArray<FVector2D> UV0;
+		TArray<FVector> Normals;
+		TArray<struct FProcMeshTangent> Tangents;
 
 		FVector neighboursFirstCornerLocation = tile->GetNeighbor(FHexDirectionExtensions::Previous(static_cast<EHexDirection>(i)))->GetActorLocation() + FTileMetrics::GetFirstBorderCorner(FHexDirectionExtensions::Previous(FHexDirectionExtensions::Opposite(static_cast<EHexDirection>(i))));
 		FVector tilesFirstCornerLocation = tile->GetActorLocation() + FTileMetrics::GetFirstBorderCorner(static_cast<EHexDirection>(i));
@@ -179,14 +211,16 @@ void ATile_Manager::CreateTriangleConnections(ATile* tile)
 		v2 += GetDistortionForTileAtPosition(tile, v2);
 		v3 += GetDistortionForTileAtPosition(tile, v3);
 
-		//FVector2D UVforV1(FVector::);
+		// TODO: recalculate for each segment
 		FVector2D UVforV1(0.25, 0);
 		FVector2D UVforV2(0, 0);
 		FVector2D UVforV3(0, 1);
 
 		AddTriangle(v1, v2, v3, UVforV1, UVforV2, UVforV3, Vertices, Triangles, UV0);
 
-		tile->GetTriangleConnectionsComponent()->CreateMeshSection(i, Vertices, Triangles, TArray<FVector>(), UV0, TArray<FColor>(), TArray<FProcMeshTangent>(), true);
+		UKismetProceduralMeshLibrary::CalculateTangentsForMesh(Vertices, Triangles, UV0, Normals, Tangents);
+
+		tile->GetTriangleConnectionsComponent()->CreateMeshSection(i, Vertices, Triangles, Normals, UV0, TArray<FColor>(), Tangents, true);
 
 	}
 }
@@ -216,7 +250,7 @@ void ATile_Manager::AddQuad(FVector v1, FVector v2, FVector v3, FVector v4, FVec
 
 FVector ATile_Manager::GetDistortionForTileAtPosition(ATile* tile, FVector position)
 {
-	float xDistortion = FTileMetrics::IntensityOfDistortion * FMath::PerlinNoise3D((FVector(tile->GetActorLocation().X, tile->GetActorLocation().Y, tile->GetActorLocation().Z + 0.5) + position) * FTileMetrics::ScaleOfDestortionNoise);
-	float yDistortion = FTileMetrics::IntensityOfDistortion * FMath::PerlinNoise3D((FVector(tile->GetActorLocation().X, tile->GetActorLocation().Y, tile->GetActorLocation().Z + 100.5) + position) * FTileMetrics::ScaleOfDestortionNoise);
+	float xDistortion = IntensityOfDistortion * FMath::PerlinNoise3D((FVector(tile->GetActorLocation().X, tile->GetActorLocation().Y, tile->GetActorLocation().Z + 0.5) + position) * ScaleOfDestortionNoise);
+	float yDistortion = IntensityOfDistortion * FMath::PerlinNoise3D((FVector(tile->GetActorLocation().X, tile->GetActorLocation().Y, tile->GetActorLocation().Z + 100.5) + position) * ScaleOfDestortionNoise);
 	return FVector(xDistortion, yDistortion, 0);
 }

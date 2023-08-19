@@ -29,8 +29,8 @@ EHexDirection FHexDirectionExtensions::Next(EHexDirection direction)
 const float FTileMetrics::HexRadius = 100.f;
 const float FTileMetrics::HexBorderSize = 30.f;
 const float FTileMetrics::ConnectionBridgeSize = 30.f;
-const float FTileMetrics::IntensityOfDistortion = 15.f;
-const float FTileMetrics::ScaleOfDestortionNoise = 0.03;
+//const float FTileMetrics::IntensityOfDistortion = 15.f;
+//const float FTileMetrics::ScaleOfDestortionNoise = 0.03;
 
 const float FTileMetrics::SolidInnerRadius = FMath::Sqrt(FMath::Pow(FTileMetrics::HexRadius, 2) - FMath::Pow(FTileMetrics::HexRadius / 2, 2));
 const float FTileMetrics::innerRadius = FTileMetrics::SolidInnerRadius + FTileMetrics::HexBorderSize + FTileMetrics::ConnectionBridgeSize / 2.f;
@@ -93,10 +93,10 @@ void ATile::BeginPlay()
 {
 	Super::BeginPlay();
 
-	auto Material = TileMesh->GetMaterial(0);
-	DynamicMaterial = UMaterialInstanceDynamic::Create(Material, this);
-	TileMesh->SetMaterial(0, DynamicMaterial);
-	DynamicMaterial->SetVectorParameterValue(TEXT("Color"), FColor::White);
+	//auto Material = TileMesh->GetMaterial(0);
+	//DynamicMaterial = UMaterialInstanceDynamic::Create(Material, this);
+	//TileMesh->SetMaterial(0, DynamicMaterial);
+	//DynamicMaterial->SetVectorParameterValue(TEXT("Color"), FColor::White);
 }
 
 void ATile::Tick(float DeltaTime)

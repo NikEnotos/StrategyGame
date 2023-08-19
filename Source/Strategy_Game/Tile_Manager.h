@@ -27,6 +27,14 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Map Settings")
 		TSubclassOf<ATile> TileMesh;
 
+	UPROPERTY(EditAnywhere, Category = "Map Settings")
+		float IntensityOfDistortion = 15.f;
+	UPROPERTY(EditAnywhere, Category = "Map Settings")
+		float ScaleOfDestortionNoise = 0.021;
+	UPROPERTY(EditAnywhere, Category = "Map Settings")
+		int NumberOfSegmentsOfTileSide = 2;
+
+
 	//DEBUG
 	UPROPERTY(EditAnywhere, Category = "Map Settings")
 		bool bCreateBorders = true;

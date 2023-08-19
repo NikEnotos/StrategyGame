@@ -69,8 +69,8 @@ struct FTileMetrics
 	static const float ConnectionBridgeSize;
 
 	// Distortion
-	static const float IntensityOfDistortion;
-	static const float ScaleOfDestortionNoise;
+	//static const float IntensityOfDistortion;
+	//static const float ScaleOfDestortionNoise;
 
 	static FVector GetFirstCorner(EHexDirection direction);
 	static FVector GetSecondCorner(EHexDirection direction);
