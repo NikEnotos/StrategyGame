@@ -20,16 +20,14 @@ void ATile_Manager::BeginPlay()
 	{
 		for (int y = 0; y < MapWidth; ++y)
 		{
-			CreateTile(x, y, i);
-			//DEBUG
-			if (bCreateBorders) CreateBorders(TilesArray[i]);
-			++i;
+			CreateTile(x, y, i++);
 		}
 	}
 
 	for (auto tile : TilesArray)
 	{
 		//DEBUG
+		if (bCreateBorders) CreateBorders(tile);
 		if (bCreateConnections) CreateConnections(tile);
 		if (bCreateTriangleConnections) CreateTriangleConnections(tile);
 	}
@@ -41,7 +39,7 @@ void ATile_Manager::CreateTile(int x, int y, int i)
 	FVector position;
 	position.X = x * (FTileMetrics::outerRadius * 1.5f);
 	position.Y = (y + x * 0.5f - x / 2) * (FTileMetrics::innerRadius * 2.f);
-	position.Z = 20 * (FMath::Rand() % 5);
+	position.Z = StepHeight * (FMath::Rand() % 5); // TODO: Change level height calculation
 
 
 	// Spawn tile at the position
@@ -111,6 +109,31 @@ void ATile_Manager::CreateBorders(ATile* tile)
 			FVector borderSegmentEnd = FMath::Lerp(borderStart, BborderEnd, float(iteration) / NumberOfSegmentsOfTileSide);
 			FVector solidSegmentEnd = FMath::Lerp(solidStart, solidEnd, float(iteration) / NumberOfSegmentsOfTileSide);
 
+
+			// Add edge slope
+			FVector edgeSlope = AddSmoothnessForEdge(tile, static_cast<EHexDirection>(i));
+			if (iteration != 1)
+			{
+				borderSegmentStart += edgeSlope;
+			}
+			else
+			{
+				FVector PreviousEdgeSlope = AddSmoothnessForEdge(tile, FHexDirectionExtensions::Previous(static_cast<EHexDirection>(i)));
+				borderSegmentStart += (edgeSlope + PreviousEdgeSlope) / 2;
+			}
+
+			if (iteration != NumberOfSegmentsOfTileSide)
+			{
+				borderSegmentEnd += edgeSlope;
+			}
+			else
+			{
+				FVector NextEdgeSlope = AddSmoothnessForEdge(tile, FHexDirectionExtensions::Next(static_cast<EHexDirection>(i)));
+				borderSegmentEnd += (edgeSlope + NextEdgeSlope) / 2;
+			}
+
+
+			// Add distortion of Border corners
 			borderSegmentStart += GetDistortionForTileAtPosition(tile, borderSegmentStart);
 			borderSegmentEnd += GetDistortionForTileAtPosition(tile, borderSegmentEnd);
 
@@ -168,6 +191,39 @@ void ATile_Manager::CreateConnections(ATile* tile)
 			FVector borderSegmentEnd = FMath::Lerp(v1, v4, float(iteration) / NumberOfSegmentsOfTileSide);
 			FVector solidSegmentEnd = FMath::Lerp(v2, v3, float(iteration) / NumberOfSegmentsOfTileSide);
 
+			// Add edge slope
+			FVector tileEdgeSlope = AddSmoothnessForEdge(tile, static_cast<EHexDirection>(i));
+			FVector neighborEdgeSlope = AddSmoothnessForEdge(tile->GetNeighbor(static_cast<EHexDirection>(i)), FHexDirectionExtensions::Opposite(static_cast<EHexDirection>(i)));
+			if (iteration != 1)
+			{
+				solidSegmentStart += tileEdgeSlope;
+				borderSegmentStart += neighborEdgeSlope;
+			}
+			else
+			{
+				FVector PreviousTileEdgeSlope = AddSmoothnessForEdge(tile, FHexDirectionExtensions::Previous(static_cast<EHexDirection>(i)));
+				FVector PreviousNeighborEdgeSlope = AddSmoothnessForEdge(tile->GetNeighbor(static_cast<EHexDirection>(i)), FHexDirectionExtensions::Opposite(FHexDirectionExtensions::Next(static_cast<EHexDirection>(i))));
+
+				solidSegmentStart += (tileEdgeSlope + PreviousTileEdgeSlope) / 2;
+				borderSegmentStart += (neighborEdgeSlope + PreviousNeighborEdgeSlope) / 2;
+			}
+
+			if (iteration != NumberOfSegmentsOfTileSide)
+			{
+				solidSegmentEnd += tileEdgeSlope;
+				borderSegmentEnd += neighborEdgeSlope;
+			}
+			else
+			{
+				FVector NextTileEdgeSlope = AddSmoothnessForEdge(tile, FHexDirectionExtensions::Next(static_cast<EHexDirection>(i)));
+				FVector NextNeighborEdgeSlope = AddSmoothnessForEdge(tile->GetNeighbor(static_cast<EHexDirection>(i)), FHexDirectionExtensions::Opposite(FHexDirectionExtensions::Previous(static_cast<EHexDirection>(i))));
+
+				solidSegmentEnd += (tileEdgeSlope + NextTileEdgeSlope) / 2;
+				borderSegmentEnd += (neighborEdgeSlope + NextNeighborEdgeSlope) / 2;
+			}
+
+
+			// Add distortion of Border corners
 			borderSegmentStart += GetDistortionForTileAtPosition(tile, borderSegmentStart);
 			borderSegmentEnd += GetDistortionForTileAtPosition(tile, borderSegmentEnd);
 			solidSegmentStart += GetDistortionForTileAtPosition(tile, solidSegmentStart);
@@ -248,9 +304,22 @@ void ATile_Manager::AddQuad(FVector v1, FVector v2, FVector v3, FVector v4, FVec
 	AddTriangle(v3, v4, v1, UVforV3, UVforV4, UVforV1, Vertices, Triangles, UV);
 }
 
-FVector ATile_Manager::GetDistortionForTileAtPosition(ATile* tile, FVector position)
+FVector ATile_Manager::GetDistortionForTileAtPosition(const ATile* tile, FVector position)
 {
 	float xDistortion = IntensityOfDistortion * FMath::PerlinNoise3D((FVector(tile->GetActorLocation().X, tile->GetActorLocation().Y, tile->GetActorLocation().Z + 0.5) + position) * ScaleOfDestortionNoise);
 	float yDistortion = IntensityOfDistortion * FMath::PerlinNoise3D((FVector(tile->GetActorLocation().X, tile->GetActorLocation().Y, tile->GetActorLocation().Z + 100.5) + position) * ScaleOfDestortionNoise);
 	return FVector(xDistortion, yDistortion, 0);
+}
+
+FVector ATile_Manager::AddSmoothnessForEdge(ATile* tile, EHexDirection direction)
+{
+	ATile* neighbor = tile->GetNeighbor(direction);
+	if (neighbor != nullptr && neighbor->GetActorLocation().Z != tile->GetActorLocation().Z)
+	{	
+		return neighbor->GetActorLocation().Z < tile->GetActorLocation().Z ? FVector(0, 0, -EdgeSlope) : FVector(0, 0, EdgeSlope);
+	}
+	else
+	{
+		return FVector(0, 0, 0);
+	}
 }

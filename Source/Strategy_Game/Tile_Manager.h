@@ -4,9 +4,14 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 
+#include "Tile.h" // TODO: figur out how to not connect all Tile.h file but only "EHexDirection"
+
 #include "Tile_Manager.generated.h"
 
+
+
 class ATile;
+
 
 UCLASS()
 class STRATEGY_GAME_API ATile_Manager : public AActor
@@ -23,16 +28,21 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Map Settings")
 		int32 MapHeight = 40;
 
-	// TEST
-	UPROPERTY(EditAnywhere, Category = "Map Settings")
-		TSubclassOf<ATile> TileMesh;
-
+	// Segment distortion
 	UPROPERTY(EditAnywhere, Category = "Map Settings")
 		float IntensityOfDistortion = 15.f;
 	UPROPERTY(EditAnywhere, Category = "Map Settings")
 		float ScaleOfDestortionNoise = 0.021;
-	UPROPERTY(EditAnywhere, Category = "Map Settings")
+	UPROPERTY(EditAnywhere, Category = "Map Settings", meta = (ClampMin = "1", ClampMax = "35"))
 		int NumberOfSegmentsOfTileSide = 2;
+
+	// Edge smoothness
+	UPROPERTY(EditAnywhere, Category = "Map Settings", meta = (ClampMin = "0.0", ClampMax = "100.0"))
+		float EdgeSlope = 0.f;
+
+	UPROPERTY(EditAnywhere, Category = "Map Settings", meta = (ClampMin = "1.0", ClampMax = "200.0"))
+		float StepHeight = 20.f;
+
 
 
 	//DEBUG
@@ -43,6 +53,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Map Settings")
 		bool bCreateTriangleConnections = true;
 
+	// TEST
+	UPROPERTY(EditAnywhere, Category = "Map Settings")
+		TSubclassOf<ATile> TileMesh;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -63,7 +76,9 @@ private:
 	void AddTriangle(FVector v1, FVector v2, FVector v3, FVector2D UVforV1, FVector2D UVforV2, FVector2D UVforV3, TArray<FVector>& Vertices, TArray<int>& Triangles, TArray<FVector2D>& UV);
 	void AddQuad(FVector v1, FVector v2, FVector v3, FVector v4, FVector2D UVforV1, FVector2D UVforV2, FVector2D UVforV3, FVector2D UVforV4, TArray<FVector>& Vertices, TArray<int>& Triangles, TArray<FVector2D>& UV);
 
-	FVector GetDistortionForTileAtPosition(ATile* tile, FVector position);
+	FVector GetDistortionForTileAtPosition(const ATile* tile, FVector position);
+
+	FVector AddSmoothnessForEdge(ATile* tile, EHexDirection direction);
 };
 
 
