@@ -27,7 +27,7 @@ EHexDirection FHexDirectionExtensions::Next(EHexDirection direction)
 
 // Setup values of Metrics
 const float FTileMetrics::HexRadius = 100.f;
-const float FTileMetrics::HexBorderSize = 30.f;
+const float FTileMetrics::HexBorderSize = 23.f;
 const float FTileMetrics::ConnectionBridgeSize = 30.f;
 //const float FTileMetrics::IntensityOfDistortion = 15.f;
 //const float FTileMetrics::ScaleOfDestortionNoise = 0.03;

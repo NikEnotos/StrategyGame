@@ -110,7 +110,7 @@ void ATile_Manager::CreateBorders(ATile* tile)
 			FVector solidSegmentEnd = FMath::Lerp(solidStart, solidEnd, float(iteration) / NumberOfSegmentsOfTileSide);
 
 
-			// Add edge slope
+			// Add edge's slope
 			FVector edgeSlope = AddSmoothnessForEdge(tile, static_cast<EHexDirection>(i));
 			if (iteration != 1)
 			{
@@ -191,7 +191,7 @@ void ATile_Manager::CreateConnections(ATile* tile)
 			FVector borderSegmentEnd = FMath::Lerp(v1, v4, float(iteration) / NumberOfSegmentsOfTileSide);
 			FVector solidSegmentEnd = FMath::Lerp(v2, v3, float(iteration) / NumberOfSegmentsOfTileSide);
 
-			// Add edge slope
+			// Add edge's slope
 			FVector tileEdgeSlope = AddSmoothnessForEdge(tile, static_cast<EHexDirection>(i));
 			FVector neighborEdgeSlope = AddSmoothnessForEdge(tile->GetNeighbor(static_cast<EHexDirection>(i)), FHexDirectionExtensions::Opposite(static_cast<EHexDirection>(i)));
 			if (iteration != 1)
@@ -251,7 +251,7 @@ void ATile_Manager::CreateTriangleConnections(ATile* tile)
 		TArray<FVector> Normals;
 		TArray<struct FProcMeshTangent> Tangents;
 
-		FVector neighboursFirstCornerLocation = tile->GetNeighbor(FHexDirectionExtensions::Previous(static_cast<EHexDirection>(i)))->GetActorLocation() + FTileMetrics::GetFirstBorderCorner(FHexDirectionExtensions::Previous(FHexDirectionExtensions::Opposite(static_cast<EHexDirection>(i))));
+		FVector neighboursFirstCornerLocation = tile->GetNeighbor(FHexDirectionExtensions::Previous(static_cast<EHexDirection>(i)))->GetActorLocation() + FTileMetrics::GetFirstBorderCorner(FHexDirectionExtensions::Opposite(FHexDirectionExtensions::Previous(static_cast<EHexDirection>(i))));
 		FVector tilesFirstCornerLocation = tile->GetActorLocation() + FTileMetrics::GetFirstBorderCorner(static_cast<EHexDirection>(i));
 		FVector v1 = FTileMetrics::GetFirstBorderCorner(static_cast<EHexDirection>(i)) + neighboursFirstCornerLocation - tilesFirstCornerLocation;
 
@@ -262,6 +262,11 @@ void ATile_Manager::CreateTriangleConnections(ATile* tile)
 		FVector v3 = FTileMetrics::GetFirstBorderCorner(static_cast<EHexDirection>(i)) + neighboursSecondCornerLocation - tilesSecondCornerLocation;
 
 		
+		// Add edge's slope
+		v1 += (AddSmoothnessForEdge(tile->GetNeighbor(FHexDirectionExtensions::Previous(static_cast<EHexDirection>(i))), FHexDirectionExtensions::Opposite(FHexDirectionExtensions::Previous(static_cast<EHexDirection>(i)))) + AddSmoothnessForEdge(tile->GetNeighbor(FHexDirectionExtensions::Previous(static_cast<EHexDirection>(i))), FHexDirectionExtensions::Previous(FHexDirectionExtensions::Opposite(FHexDirectionExtensions::Previous(static_cast<EHexDirection>(i))))) ) / 2;
+		v2 += (AddSmoothnessForEdge(tile, FHexDirectionExtensions::Previous(static_cast<EHexDirection>(i))) + AddSmoothnessForEdge(tile, static_cast<EHexDirection>(i))) / 2;
+		v3 += (AddSmoothnessForEdge(tile->GetNeighbor(static_cast<EHexDirection>(i)), FHexDirectionExtensions::Next(FHexDirectionExtensions::Opposite(static_cast<EHexDirection>(i)))) + AddSmoothnessForEdge(tile->GetNeighbor(static_cast<EHexDirection>(i)), FHexDirectionExtensions::Opposite(static_cast<EHexDirection>(i)))) / 2;
+
 		//Distortion of Border corners
 		v1 += GetDistortionForTileAtPosition(tile, v1);
 		v2 += GetDistortionForTileAtPosition(tile, v2);
