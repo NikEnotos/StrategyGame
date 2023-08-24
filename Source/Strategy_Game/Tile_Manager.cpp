@@ -13,7 +13,12 @@ ATile_Manager::ATile_Manager()
 void ATile_Manager::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	CreateMap();
+}
+
+void ATile_Manager::CreateMap()
+{
 	TilesArray.SetNumZeroed(MapWidth * MapHeight);
 
 	for (int x = 0, i = 0; x < MapHeight; ++x)
@@ -31,8 +36,8 @@ void ATile_Manager::BeginPlay()
 		if (bCreateConnections) CreateConnections(tile);
 		if (bCreateTriangleConnections) CreateTriangleConnections(tile);
 	}
-
 }
+
 
 void ATile_Manager::CreateTile(int x, int y, int i)
 {

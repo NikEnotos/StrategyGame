@@ -24,9 +24,9 @@ public:
 protected:
 	// Map SIZE
 	UPROPERTY(EditAnywhere, Category = "Map Settings")
-		int32 MapWidth = 40;
+		int32 MapWidth = 10;
 	UPROPERTY(EditAnywhere, Category = "Map Settings")
-		int32 MapHeight = 40;
+		int32 MapHeight = 10;
 
 	// Segment distortion
 	UPROPERTY(EditAnywhere, Category = "Map Settings")
@@ -38,7 +38,7 @@ protected:
 
 	// Edge smoothness
 	UPROPERTY(EditAnywhere, Category = "Map Settings", meta = (ClampMin = "0.0", ClampMax = "100.0"))
-		float EdgeSlope = 0.f;
+		float EdgeSlope = 7.f;
 
 	UPROPERTY(EditAnywhere, Category = "Map Settings", meta = (ClampMin = "1.0", ClampMax = "200.0"))
 		float StepHeight = 20.f;
@@ -59,6 +59,11 @@ protected:
 	
 protected:
 	virtual void BeginPlay() override;
+
+	//TEST
+	UFUNCTION(BlueprintCallable)
+	void CreateMap();
+
 
 protected:
 	UFUNCTION(BlueprintCallable)
