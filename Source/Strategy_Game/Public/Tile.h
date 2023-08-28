@@ -14,6 +14,14 @@ struct FHexCoordinates
 {
 	GENERATED_BODY()
 
+	struct OffsetCoordinates
+	{
+		OffsetCoordinates(int r, int c) : row(r), col(c) {};
+
+		int row;
+		int col;
+	};
+
 	FHexCoordinates(int x, int y);
 
 	FHexCoordinates();
@@ -23,6 +31,7 @@ struct FHexCoordinates
 	inline int getZ() { return - X - Y; };
 
 	static FHexCoordinates FromOffsetCoordinates(int x, int y);
+	static OffsetCoordinates FromCubeCoordinates(FHexCoordinates coordinates);
 
 private:
 	UPROPERTY(VisibleAnywhere)
@@ -89,7 +98,7 @@ class STRATEGY_GAME_API ATile : public AActor
 
 
 public:
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere); //, BlueprintReadWrite
 		FHexCoordinates coordinates;
 
 public:

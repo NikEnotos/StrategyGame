@@ -11,6 +11,7 @@
 FHexCoordinates::FHexCoordinates(int x, int y) { X = x; Y = y; Z = -x - y; };
 FHexCoordinates::FHexCoordinates() { X = 0; Y = 0; };
 FHexCoordinates FHexCoordinates::FromOffsetCoordinates(int x, int y) { return FHexCoordinates(x, y - int(x / 2)); };
+FHexCoordinates::OffsetCoordinates FHexCoordinates::FromCubeCoordinates(FHexCoordinates coordinates) { return FHexCoordinates::OffsetCoordinates(coordinates.X, coordinates.Y + int(coordinates.X/2)); }
 
 EHexDirection FHexDirectionExtensions::Opposite(EHexDirection direction)
 {
@@ -81,8 +82,19 @@ ATile::ATile()
 	// Set number of elements of array
 	neighbors.SetNumZeroed(6);
 
-	TileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TileMesh"));
-	RootComponent = TileMesh;
+
+	UStaticMesh* staticMesh = Cast<UStaticMesh>(StaticLoadObject(UStaticMesh::StaticClass(), nullptr, TEXT("/Game/Tiles/Defaultest_Tile.Defaultest_Tile")));
+	if (staticMesh)
+	{
+		TileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TileMesh"));
+		RootComponent = TileMesh;
+		TileMesh->SetStaticMesh(staticMesh);
+	}
+	else 
+	{
+		//DEBUG
+		RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
+	}
 
 	DefineBordersProceduralMeshe();
 	DefineConnectionsProceduralMeshe();
