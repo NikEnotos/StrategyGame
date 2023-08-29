@@ -10,6 +10,15 @@
 void UMapGenerationSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
+
+	// DEBUG : To keep the same height for each tile        ??? IT DOES NOT WORK IF YOU INITIALIZE IT HERE ???
+	//TilesLevelsArray.SetNum(MapWidth * MapHeight);
+	//for (auto tile : TilesLevelsArray)
+	//{
+	//	tile = FMath::Rand() % 5;
+	//	
+	//	UE_LOG(LogTemp, Warning, TEXT("%f"), tile);
+	//}
 }
 void UMapGenerationSubsystem::Deinitialize()
 {
@@ -42,8 +51,7 @@ void UMapGenerationSubsystem::CreateTile(int x, int y, int i)
 	FVector position;
 	position.X = x * (FTileMetrics::outerRadius * 1.5f);
 	position.Y = (y + x * 0.5f - x / 2) * (FTileMetrics::innerRadius * 2.f);
-	position.Z = StepHeight * (FMath::Rand() % 5); // TODO: Change level height calculation
-
+	position.Z = StepHeight * TilesLevelsArray[y + x * MapWidth]; // TODO: Change level height calculation
 
 	// Spawn tile at the position
 	ATile* newTile = GetWorld()->SpawnActor<ATile>(ATile::StaticClass(), position, FRotator::ZeroRotator);
@@ -347,6 +355,19 @@ void UMapGenerationSubsystem::ChangeMapParameters(int32 width, int32 height, flo
 		tile->Destroy();
 	}
 	TilesArray.Empty(0);
+
+	// Recalculate TilesLevelsArray
+	if (TilesLevelsArray.Num() < MapWidth * MapHeight)
+	{
+		for (int i = TilesLevelsArray.Num(); i < MapWidth * MapHeight; ++i)
+		{
+			TilesLevelsArray.Add(FMath::Rand() % 5);
+		}
+	}
+	else
+	{
+		TilesLevelsArray.SetNum(MapWidth * MapHeight);
+	}
 
 	CreateMap();
 }

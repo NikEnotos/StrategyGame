@@ -21,8 +21,6 @@ public:
 
 	//TEST
 	UFUNCTION(BlueprintCallable)
-		void CreateMap();
-	UFUNCTION(BlueprintCallable)
 		void ChangeMapParameters(int32 width = 5, int32 height = 5, float distortionIntensity = 15.f, float destortionNoiseScale = 0.021, int numOfSegments = 2, float percentOfEdgeSlope = 7.f, float levelStepHeight = 20.f);
 	UFUNCTION(BlueprintCallable)
 		void ChangeTileParameters(int tileLevel);
@@ -30,9 +28,9 @@ public:
 protected:
 	// Map SIZE
 	UPROPERTY(EditAnywhere, Category = "Map Settings")
-		int32 MapWidth = 10;
+		int32 MapWidth = 4;
 	UPROPERTY(EditAnywhere, Category = "Map Settings")
-		int32 MapHeight = 10;
+		int32 MapHeight = 4;
 
 	// Segment distortion
 	UPROPERTY(EditAnywhere, Category = "Map Settings")
@@ -59,10 +57,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Map Settings")
 		bool bCreateTriangleConnections = true;
 
-	// TEST
-	//UPROPERTY(EditAnywhere, Category = "Map Settings")
-	//	//TSubclassOf<ATile> TileMesh;
-	//	ATile* TileMesh;
 
 protected:
 	UFUNCTION(BlueprintCallable)
@@ -71,8 +65,10 @@ protected:
 
 private:
 	TArray<ATile*> TilesArray;
+	TArray<float> TilesLevelsArray;
 
 private:
+	void CreateMap();
 	void CreateBorders(ATile* tile);
 	void CreateConnections(ATile* tile);
 	void CreateTriangleConnections(ATile* tile);
